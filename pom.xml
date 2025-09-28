@@ -51,6 +51,9 @@
 	<!-- - - - - - - - - - - - - -->
 	<properties>
 		<java.version>21</java.version>
+		<lombok.version>1.18.38</lombok.version>
+        <postgresql.version>42.7.7</postgresql.version>
+		<h2.version>2.3.232</h2.version>
 	</properties>
 
 	<!-- - - - - - - - - - - - - -->
@@ -71,18 +74,21 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<scope>annotationProcessor</scope>
+			<version>${lombok.version}</version>
+			<optional>true</optional>
 		</dependency>
 
 		<!-- Runtime dependencies -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
+			<version>${postgresql.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
+			<version>${h2.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 
