@@ -72,7 +72,7 @@ public class InventoryItemImp implements InventoryItemService {
                 .orElseThrow(() -> {
                     String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
                     log.warn("[{}] {}", methodNomenclature, msg);
-                    return new ResourceNotFoundException(new Object[]{"id", id.toString()});
+                    return new ResourceNotFoundException(new Object[]{ENTITY_NAME, "id", id.toString()});
                 });
             if (!existing.getName().equals(update.name()) && Boolean.TRUE.equals(isNameTaken(update.name()))) {
                 String msg = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", update.name());
@@ -105,7 +105,7 @@ public class InventoryItemImp implements InventoryItemService {
             if (!repository.existsById(id)) {
                 String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
                 log.warn("[{}] {}", methodNomenclature, msg);
-                throw new ResourceNotFoundException(new Object[]{"id", id.toString()});
+                throw new ResourceNotFoundException(new Object[]{ENTITY_NAME, "id", id.toString()});
             }
             repository.deleteById(id);
             String msg = messageService.getMessage("crud.delete.success", ENTITY_NAME);
@@ -130,7 +130,7 @@ public class InventoryItemImp implements InventoryItemService {
         if (response.isEmpty()) {
             String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
             log.warn("[{}] {}", methodNomenclature, msg);
-            throw new ResourceNotFoundException(new Object[]{"id", id.toString()});
+            throw new ResourceNotFoundException(new Object[]{ENTITY_NAME, "id", id.toString()});
         }
         String msg = messageService.getMessage("crud.read.success", ENTITY_NAME);
         log.debug("[{}] {}", methodNomenclature, msg);

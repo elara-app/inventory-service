@@ -31,7 +31,7 @@ public class UomServiceClient {
         } catch (HttpClientErrorException.NotFound e) {
             String msg = messageService.getMessage("crud.not.found", "UOM", "id", id.toString());
             log.warn("[" + NOMENCLATURE + "-findById] {}", msg);
-            throw new ResourceNotFoundException(new Object[]{"id", id.toString()});
+            throw new ResourceNotFoundException(new Object[]{ENTITY_NAME, "id", id.toString()});
         }
     }
 
