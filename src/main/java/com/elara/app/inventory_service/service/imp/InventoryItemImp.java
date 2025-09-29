@@ -64,13 +64,14 @@ public class InventoryItemImp implements InventoryItemService {
     @Override
     @Transactional
     public InventoryItemResponse update(Long id, InventoryItemUpdate update) {
+        // Implement update
         return null;
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
-
+        // Implement delete
     }
 
     @Override
@@ -90,11 +91,13 @@ public class InventoryItemImp implements InventoryItemService {
 
     @Override
     public Page<InventoryItemResponse> findAll(Pageable pageable) {
+        // Implement findAll
         return null;
     }
 
     @Override
     public Page<InventoryItemResponse> findAllByName(String name, Pageable pageable) {
+        // Implement findAllByName
         return null;
     }
 
