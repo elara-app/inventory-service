@@ -74,17 +74,16 @@ public class InventoryItemImp implements InventoryItemService {
 
     @Override
     public InventoryItemResponse findById(Long id) {
-        String methodName = "findById";
-        String methodScope = NOMENCLATURE + "-" + methodName;
-        log.debug("[{}] Searching {} with id: {}", methodScope, ENTITY_NAME, id);
+        String methodNomenclature = NOMENCLATURE + "-findById";
+        log.debug("[{}] Searching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
         Optional<InventoryItemResponse> response = repository.findById(id).map(mapper::toResponse);
         if (response.isEmpty()) {
             String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
-            log.warn("[{}] {}", methodScope, msg);
+            log.warn("[{}] {}", methodNomenclature, msg);
             throw new ResourceNotFoundException(new Object[]{"id", id.toString()});
         }
         String msg = messageService.getMessage("crud.read.success", ENTITY_NAME);
-        log.debug("[{}] {}", methodScope, msg);
+        log.debug("[{}] {}", methodNomenclature, msg);
         return response.get();
     }
 
