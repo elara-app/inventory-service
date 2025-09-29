@@ -55,6 +55,7 @@
         <postgresql.version>42.7.7</postgresql.version>
 		<h2.version>2.3.232</h2.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
+		<mapstruct.processor.version>1.6.3</mapstruct.processor.version>
 	</properties>
 
 	<!-- - - - - - - - - - - - - -->
@@ -83,6 +84,12 @@
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
+		<dependency>
+    		<groupId>org.mapstruct</groupId>
+    		<artifactId>mapstruct-processor</artifactId>
+			<version>${mapstruct.processor.version}</version>
+    		<scope>provided</scope>
+		</dependency>
 
 		<!-- Runtime dependencies -->
 		<dependency>
