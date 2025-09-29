@@ -99,9 +99,10 @@ public class InventoryItemImp implements InventoryItemService {
 
     @Override
     public Boolean isNameTaken(String name) {
-        log.debug("[" + NOMENCLATURE + "-isNameTaken] checking if name '{}' is taken for {}", name, ENTITY_NAME);
+        String methodNomenclature = NOMENCLATURE + "-isNameTaken";
+        log.debug("[{}] checking if name '{}' is taken for {}", methodNomenclature, name, ENTITY_NAME);
         Boolean exists = repository.existsByNameIgnoreCase(name);
-        log.debug("[" + NOMENCLATURE + "-isNameTaken] Name '{}' taken: {}", name, exists);
+        log.debug("[{}] Name '{}' taken: {}", methodNomenclature, name, exists);
         return exists;
     }
 }
