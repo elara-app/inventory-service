@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 public record InventoryItemResponse(
 
+    Long id,
     String name,
     String description,
     Long baseUnitOfMeasureId,
