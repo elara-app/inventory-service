@@ -4,6 +4,7 @@ import com.elara.app.inventory_service.dto.request.InventoryItemRequest;
 import com.elara.app.inventory_service.dto.response.InventoryItemResponse;
 import com.elara.app.inventory_service.service.interfaces.InventoryItemService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -66,6 +67,18 @@ public class InventoryItemController {
         log.info("[{}] Request to get all InventoryItems.", methodNomenclature);
         Page<InventoryItemResponse> response = service.findAll(pageable);
         log.info("[{}] Fetched {} InventoryItems.", methodNomenclature, response.getNumberOfElements());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<InventoryItemResponse>> getAllByName(
+        @RequestParam @NotBlank String name,
+        @PageableDefault(size = 20, sort = "name") Pageable pageable
+    ) {
+        final String methodNomenclature = NOMENCLATURE + "-getAllByName";
+        log.info("[{}] Request to search InventoryItems by name: {}", methodNomenclature, name);
+        Page<InventoryItemResponse> response = service.findAllByName(name, pageable);
+        log.info("[{}] Fetched {} InventoryItems for name: '{}'", methodNomenclature, response.getNumberOfElements(), name);
         return ResponseEntity.ok(response);
     }
 
