@@ -91,8 +91,11 @@ public class InventoryItemImp implements InventoryItemService {
 
     @Override
     public Page<InventoryItemResponse> findAll(Pageable pageable) {
-        // Implement findAll
-        return null;
+        String methodNomenclature = NOMENCLATURE + "-findAll";
+        log.debug("[{}] Fetching all {} entieies", methodNomenclature, ENTITY_NAME);
+        Page<InventoryItemResponse> page = repository.findAll(pageable).map(mapper::toResponse);
+        log.debug("[{}] Fetched {} entities, page size: {}", methodNomenclature, ENTITY_NAME, page.getNumberOfElements());
+        return page;
     }
 
     @Override
