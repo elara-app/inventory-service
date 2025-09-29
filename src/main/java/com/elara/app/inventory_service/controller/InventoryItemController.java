@@ -47,8 +47,11 @@ public class InventoryItemController {
     public ResponseEntity<InventoryItemResponse> getById(
         @PathVariable @NotNull @Positive Long id
     ) {
-        // Implement this method
-        return null;
+        final String methodNomenclature = NOMENCLATURE + "-getById";
+        log.info("[{}] Request to get InventoryItem by id: {}", methodNomenclature, id);
+        InventoryItemResponse response = service.findById(id);
+        log.info("[{}] InventoryItem found: {}", methodNomenclature, response);
+        return ResponseEntity.ok(response);
     }
 
 }
