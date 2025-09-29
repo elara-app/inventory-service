@@ -5,6 +5,7 @@ import com.elara.app.inventory_service.dto.response.InventoryItemResponse;
 import com.elara.app.inventory_service.dto.update.InventoryItemUpdate;
 import com.elara.app.inventory_service.exceptions.ResourceConflictException;
 import com.elara.app.inventory_service.exceptions.ResourceNotFoundException;
+import com.elara.app.inventory_service.exceptions.UnexpectedErrorException;
 import com.elara.app.inventory_service.mapper.InventoryItemMapper;
 import com.elara.app.inventory_service.model.InventoryItem;
 import com.elara.app.inventory_service.repository.InventoryItemRepository;
@@ -64,8 +65,35 @@ public class InventoryItemImp implements InventoryItemService {
     @Override
     @Transactional
     public InventoryItemResponse update(Long id, InventoryItemUpdate update) {
-        // Implement update
-        return null;
+        final String methodNomenclature = NOMENCLATURE + "-update";
+        try {
+            log.debug("[{}] Attempting to update {} with id: {} and request: {}", methodNomenclature, ENTITY_NAME, id, update);
+            InventoryItem existing = repository.findById(id)
+                .orElseThrow(() -> {
+                    String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
+                    log.warn("[{}] {}", methodNomenclature, msg);
+                    return new ResourceNotFoundException(new Object[]{"id", id.toString()});
+                });
+            if (!existing.getName().equals(update.name()) && Boolean.TRUE.equals(isNameTaken(update.name()))) {
+                String msg = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", update.name());
+                log.warn("[{}] {}", methodNomenclature, msg);
+                throw new ResourceConflictException(new Object[]{"name", update.name()});
+            }
+            log.debug("[{}] Mapping update DTO to entity. Before: {}", methodNomenclature, existing);
+            mapper.updateEntityFromDto(existing, update);
+            String msg = messageService.getMessage("crud.update.success", ENTITY_NAME);
+            log.debug("[{}] {}", methodNomenclature, msg);
+            return mapper.toResponse(existing);
+        } catch (ResourceNotFoundException | ResourceConflictException e) {
+            throw e;
+        } catch (DataIntegrityViolationException e) {
+            String msg = messageService.getMessage("repository.update.error", ENTITY_NAME, e.getMessage());
+            log.error("[{}] {}", methodNomenclature, msg);
+            throw new UnexpectedErrorException(e.getMessage());
+        } catch (Exception e) {
+            log.error("[{}] Unexpected error while updating {}: {}", methodNomenclature, ENTITY_NAME, e.getMessage(), e);
+            throw new UnexpectedErrorException(e.getMessage());
+        }
     }
 
     @Override
