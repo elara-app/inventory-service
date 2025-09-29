@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -73,7 +74,17 @@ public class InventoryItemImp implements InventoryItemService {
 
     @Override
     public InventoryItemResponse findById(Long id) {
-        return null;
+        String methodNomenclature = NOMENCLATURE + "-findById";
+        log.debug("[{}] Searching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
+        Optional<InventoryItemResponse> response = repository.findById(id).map(mapper::toResponse);
+        if (response.isEmpty()) {
+            String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
+            log.warn("[{}] {}", methodNomenclature, msg);
+            throw new ResourceNotFoundException(new Object[]{"id", id.toString()});
+        }
+        String msg = messageService.getMessage("crud.read.success", ENTITY_NAME);
+        log.debug("[{}] {}", methodNomenclature, msg);
+        return response.get();
     }
 
     @Override
