@@ -2,6 +2,7 @@ package com.elara.app.inventory_service.controller;
 
 import com.elara.app.inventory_service.dto.request.InventoryItemRequest;
 import com.elara.app.inventory_service.dto.response.InventoryItemResponse;
+import com.elara.app.inventory_service.dto.update.InventoryItemUpdate;
 import com.elara.app.inventory_service.service.interfaces.InventoryItemService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -91,6 +92,22 @@ public class InventoryItemController {
         Boolean isTaken = service.isNameTaken(name);
         log.info("[{}] Name: {}", methodNomenclature, isTaken);
         return ResponseEntity.ok(isTaken);
+    }
+
+    // ========================================
+    // UPDATE OPERATIONS
+    // ========================================
+
+    @PutMapping("/{id}")
+    public ResponseEntity<InventoryItemResponse> update(
+        @PathVariable @NotNull @Positive Long id,
+        @Valid @RequestBody InventoryItemUpdate update
+    ) {
+        final String methodNomenclature = NOMENCLATURE + "-update";
+        log.info("[{}] Request to update InventoryItem; id: {}, with data: {}", methodNomenclature, id, update);
+        InventoryItemResponse response = service.update(id, update);
+        log.info("[{}] InventoryItem updated: {}", methodNomenclature, response);
+        return ResponseEntity.ok(response);
     }
 
 }
