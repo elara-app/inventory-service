@@ -91,7 +91,7 @@ public class InventoryItemImp implements InventoryItemService {
 
     @Override
     public Page<InventoryItemResponse> findAll(Pageable pageable) {
-        // Implement findAll
+
         return null;
     }
 
