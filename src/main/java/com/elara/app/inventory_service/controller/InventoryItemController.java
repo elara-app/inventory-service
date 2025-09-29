@@ -2,12 +2,17 @@ package com.elara.app.inventory_service.controller;
 
 import com.elara.app.inventory_service.dto.request.InventoryItemRequest;
 import com.elara.app.inventory_service.dto.response.InventoryItemResponse;
+import com.elara.app.inventory_service.dto.update.InventoryItemUpdate;
 import com.elara.app.inventory_service.service.interfaces.InventoryItemService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +58,71 @@ public class InventoryItemController {
         InventoryItemResponse response = service.findById(id);
         log.info("[{}] InventoryItem found: {}", methodNomenclature, response);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<InventoryItemResponse>> getAll(
+        @PageableDefault(size = 20, sort = "name") Pageable pageable
+    ) {
+        final String methodNomenclature = NOMENCLATURE + "-getAll";
+        log.info("[{}] Request to get all InventoryItems.", methodNomenclature);
+        Page<InventoryItemResponse> response = service.findAll(pageable);
+        log.info("[{}] Fetched {} InventoryItems.", methodNomenclature, response.getNumberOfElements());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<InventoryItemResponse>> getAllByName(
+        @RequestParam @NotBlank String name,
+        @PageableDefault(size = 20, sort = "name") Pageable pageable
+    ) {
+        final String methodNomenclature = NOMENCLATURE + "-getAllByName";
+        log.info("[{}] Request to search InventoryItems by name: {}", methodNomenclature, name);
+        Page<InventoryItemResponse> response = service.findAllByName(name, pageable);
+        log.info("[{}] Fetched {} InventoryItems for name: '{}'", methodNomenclature, response.getNumberOfElements(), name);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/check-name")
+    public ResponseEntity<Boolean> isNameTaken(
+        @RequestParam @NotBlank String name
+    ) {
+        final String methodNomenclature = NOMENCLATURE + "-isNameTaken";
+        log.info("[{}] Request to check if name is taken: {}", methodNomenclature, name);
+        Boolean isTaken = service.isNameTaken(name);
+        log.info("[{}] Name: {}", methodNomenclature, isTaken);
+        return ResponseEntity.ok(isTaken);
+    }
+
+    // ========================================
+    // UPDATE OPERATIONS
+    // ========================================
+
+    @PutMapping("/{id}")
+    public ResponseEntity<InventoryItemResponse> update(
+        @PathVariable @NotNull @Positive Long id,
+        @Valid @RequestBody InventoryItemUpdate update
+    ) {
+        final String methodNomenclature = NOMENCLATURE + "-update";
+        log.info("[{}] Request to update InventoryItem; id: {}, with data: {}", methodNomenclature, id, update);
+        InventoryItemResponse response = service.update(id, update);
+        log.info("[{}] InventoryItem updated: {}", methodNomenclature, response);
+        return ResponseEntity.ok(response);
+    }
+
+    // ========================================
+    // DELETE OPERATIONS
+    // ========================================
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+        @PathVariable @NotNull @Positive Long id
+    ) {
+        final String methodNomenclature = NOMENCLATURE + "-update";
+        log.info("[{}] Request to delete Uom id: {}", methodNomenclature, id);
+        service.deleteById(id);
+        log.info("[{}] Uom deleted: {}", methodNomenclature, id);
+        return ResponseEntity.noContent().build();
     }
 
 }
