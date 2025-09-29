@@ -8,6 +8,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +55,17 @@ public class InventoryItemController {
         log.info("[{}] Request to get InventoryItem by id: {}", methodNomenclature, id);
         InventoryItemResponse response = service.findById(id);
         log.info("[{}] InventoryItem found: {}", methodNomenclature, response);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<InventoryItemResponse>> getAll(
+        @PageableDefault(size = 20, sort = "name") Pageable pageable
+    ) {
+        final String methodNomenclature = NOMENCLATURE + "-getAll";
+        log.info("[{}] Request to get all InventoryItems.", methodNomenclature);
+        Page<InventoryItemResponse> response = service.findAll(pageable);
+        log.info("[{}] Fetched {} InventoryItems.", methodNomenclature, response.getNumberOfElements());
         return ResponseEntity.ok(response);
     }
 
