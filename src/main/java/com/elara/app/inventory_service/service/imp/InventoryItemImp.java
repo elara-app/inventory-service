@@ -99,7 +99,27 @@ public class InventoryItemImp implements InventoryItemService {
     @Override
     @Transactional
     public void deleteById(Long id) {
-        // Implement delete
+        String methodNomenclature = NOMENCLATURE + "-deleteById";
+        try {
+            log.debug("[{}] Attempting to delete {} with id: {}", methodNomenclature, ENTITY_NAME, id);
+            if (!repository.existsById(id)) {
+                String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
+                log.warn("[{}] {}", methodNomenclature, msg);
+                throw new ResourceNotFoundException(new Object[]{"id", id.toString()});
+            }
+            repository.deleteById(id);
+            String msg = messageService.getMessage("crud.delete.success", ENTITY_NAME);
+            log.debug("[{}] {}", methodNomenclature, msg);
+        } catch (ResourceNotFoundException | ResourceConflictException e) {
+            throw e;
+        } catch (DataIntegrityViolationException e) {
+            String msg = messageService.getMessage("repository.delete.error", ENTITY_NAME, e.getMessage());
+            log.error("[{}] {}", methodNomenclature, msg);
+            throw new UnexpectedErrorException(e.getMessage());
+        } catch (Exception e) {
+            log.error("[{}] Unexpected error while deleting {}: {}", methodNomenclature, ENTITY_NAME, e.getMessage(), e);
+            throw new UnexpectedErrorException(e.getMessage());
+        }
     }
 
     @Override
