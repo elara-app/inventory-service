@@ -82,4 +82,15 @@ public class InventoryItemController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/check-name")
+    public ResponseEntity<Boolean> isNameTaken(
+        @RequestParam @NotBlank String name
+    ) {
+        final String methodNomenclature = NOMENCLATURE + "-isNameTaken";
+        log.info("[{}] Request to check if name is taken: {}", methodNomenclature, name);
+        Boolean isTaken = service.isNameTaken(name);
+        log.info("[{}] Name: {}", methodNomenclature, isTaken);
+        return ResponseEntity.ok(isTaken);
+    }
+
 }
