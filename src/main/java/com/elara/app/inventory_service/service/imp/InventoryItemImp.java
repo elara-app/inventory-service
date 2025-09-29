@@ -26,7 +26,7 @@ import java.util.Objects;
 public class InventoryItemImp implements InventoryItemService {
 
     private static final String ENTITY_NAME = "Inventory Item";
-    private static final String nomenclature = "InventoryItem-service";
+    private static final String NOMENCLATURE = "InventoryItem-service";
     private final InventoryItemMapper mapper;
     private final InventoryItemRepository repository;
     private final MessageService messageService;
@@ -36,25 +36,25 @@ public class InventoryItemImp implements InventoryItemService {
     @Transactional
     public InventoryItemResponse save(InventoryItemRequest request) {
         try {
-            log.debug("[" + nomenclature + "-save] Attempting to create {} with name: {} and request: {}", ENTITY_NAME, request != null ? request.name() : null, request);
+            log.debug("[" + NOMENCLATURE + "-save] Attempting to create {} with name: {} and request: {}", ENTITY_NAME, request != null ? request.name() : null, request);
             if (Boolean.TRUE.equals(isNameTaken(Objects.requireNonNull(request).name()))) {
                 String msg = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", request.name());
-                log.warn("[" + nomenclature + "-save] {}", msg);
+                log.warn("[" + NOMENCLATURE + "-save] {}", msg);
                 throw new ResourceConflictException(new Object[]{"name", request.name()});
             }
             uomServiceClient.verifyUomById(request.baseUnitOfMeasureId());
             InventoryItem entity = mapper.toEntity(request);
-            log.debug("[" + nomenclature + "save] Mapped DTO to entity: {}", entity);
+            log.debug("[" + NOMENCLATURE + "save] Mapped DTO to entity: {}", entity);
             InventoryItem saved = repository.save(entity);
-            log.debug("[" + nomenclature + "save] {}", messageService.getMessage("crud.create.success", ENTITY_NAME));
+            log.debug("[" + NOMENCLATURE + "save] {}", messageService.getMessage("crud.create.success", ENTITY_NAME));
             return mapper.toResponse(saved);
         } catch (ResourceConflictException | ResourceNotFoundException e) {
             throw e;
         } catch (DataIntegrityViolationException e) {
-            log.error("[" + nomenclature + "-save] Data integrity violation while saving {}: {}", ENTITY_NAME, e.getMessage());
+            log.error("[" + NOMENCLATURE + "-save] Data integrity violation while saving {}: {}", ENTITY_NAME, e.getMessage());
             throw new ResourceConflictException(e.getMessage());
         } catch (Exception e) {
-            log.error("[" + nomenclature + "-save] Unexpected error while saving: {}: {}", ENTITY_NAME, e.getMessage(), e);
+            log.error("[" + NOMENCLATURE + "-save] Unexpected error while saving: {}: {}", ENTITY_NAME, e.getMessage(), e);
         }
         return null;
     }
@@ -88,9 +88,9 @@ public class InventoryItemImp implements InventoryItemService {
 
     @Override
     public Boolean isNameTaken(String name) {
-        log.debug("[" + nomenclature + "-isNameTaken] checking if name '{}' is taken for {}", name, ENTITY_NAME);
+        log.debug("[" + NOMENCLATURE + "-isNameTaken] checking if name '{}' is taken for {}", name, ENTITY_NAME);
         Boolean exists = repository.existsByNameIgnoreCase(name);
-        log.debug("[" + nomenclature + "-isNameTaken] Name '{}' taken: {}", name, exists);
+        log.debug("[" + NOMENCLATURE + "-isNameTaken] Name '{}' taken: {}", name, exists);
         return exists;
     }
 }
