@@ -5,6 +5,7 @@ import com.elara.app.inventory_service.dto.response.InventoryItemResponse;
 import com.elara.app.inventory_service.dto.update.InventoryItemUpdate;
 import com.elara.app.inventory_service.exceptions.ResourceConflictException;
 import com.elara.app.inventory_service.exceptions.ResourceNotFoundException;
+import com.elara.app.inventory_service.exceptions.UnexpectedErrorException;
 import com.elara.app.inventory_service.mapper.InventoryItemMapper;
 import com.elara.app.inventory_service.model.InventoryItem;
 import com.elara.app.inventory_service.repository.InventoryItemRepository;
@@ -64,13 +65,61 @@ public class InventoryItemImp implements InventoryItemService {
     @Override
     @Transactional
     public InventoryItemResponse update(Long id, InventoryItemUpdate update) {
-        return null;
+        final String methodNomenclature = NOMENCLATURE + "-update";
+        try {
+            log.debug("[{}] Attempting to update {} with id: {} and request: {}", methodNomenclature, ENTITY_NAME, id, update);
+            InventoryItem existing = repository.findById(id)
+                .orElseThrow(() -> {
+                    String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
+                    log.warn("[{}] {}", methodNomenclature, msg);
+                    return new ResourceNotFoundException(new Object[]{"id", id.toString()});
+                });
+            if (!existing.getName().equals(update.name()) && Boolean.TRUE.equals(isNameTaken(update.name()))) {
+                String msg = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", update.name());
+                log.warn("[{}] {}", methodNomenclature, msg);
+                throw new ResourceConflictException(new Object[]{"name", update.name()});
+            }
+            log.debug("[{}] Mapping update DTO to entity. Before: {}", methodNomenclature, existing);
+            mapper.updateEntityFromDto(existing, update);
+            String msg = messageService.getMessage("crud.update.success", ENTITY_NAME);
+            log.debug("[{}] {}", methodNomenclature, msg);
+            return mapper.toResponse(existing);
+        } catch (ResourceNotFoundException | ResourceConflictException e) {
+            throw e;
+        } catch (DataIntegrityViolationException e) {
+            String msg = messageService.getMessage("repository.update.error", ENTITY_NAME, e.getMessage());
+            log.error("[{}] {}", methodNomenclature, msg);
+            throw new UnexpectedErrorException(e.getMessage());
+        } catch (Exception e) {
+            log.error("[{}] Unexpected error while updating {}: {}", methodNomenclature, ENTITY_NAME, e.getMessage(), e);
+            throw new UnexpectedErrorException(e.getMessage());
+        }
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
-
+        String methodNomenclature = NOMENCLATURE + "-deleteById";
+        try {
+            log.debug("[{}] Attempting to delete {} with id: {}", methodNomenclature, ENTITY_NAME, id);
+            if (!repository.existsById(id)) {
+                String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
+                log.warn("[{}] {}", methodNomenclature, msg);
+                throw new ResourceNotFoundException(new Object[]{"id", id.toString()});
+            }
+            repository.deleteById(id);
+            String msg = messageService.getMessage("crud.delete.success", ENTITY_NAME);
+            log.debug("[{}] {}", methodNomenclature, msg);
+        } catch (ResourceNotFoundException | ResourceConflictException e) {
+            throw e;
+        } catch (DataIntegrityViolationException e) {
+            String msg = messageService.getMessage("repository.delete.error", ENTITY_NAME, e.getMessage());
+            log.error("[{}] {}", methodNomenclature, msg);
+            throw new UnexpectedErrorException(e.getMessage());
+        } catch (Exception e) {
+            log.error("[{}] Unexpected error while deleting {}: {}", methodNomenclature, ENTITY_NAME, e.getMessage(), e);
+            throw new UnexpectedErrorException(e.getMessage());
+        }
     }
 
     @Override
@@ -90,12 +139,20 @@ public class InventoryItemImp implements InventoryItemService {
 
     @Override
     public Page<InventoryItemResponse> findAll(Pageable pageable) {
-        return null;
+        String methodNomenclature = NOMENCLATURE + "-findAll";
+        log.debug("[{}] Fetching all {} entities", methodNomenclature, ENTITY_NAME);
+        Page<InventoryItemResponse> page = repository.findAll(pageable).map(mapper::toResponse);
+        log.debug("[{}] Fetched {} entities, page size: {}", methodNomenclature, ENTITY_NAME, page.getNumberOfElements());
+        return page;
     }
 
     @Override
     public Page<InventoryItemResponse> findAllByName(String name, Pageable pageable) {
-        return null;
+        String methodNomenclature = NOMENCLATURE + "-findAllByName";
+        log.debug("[{}] Fetching all {} entities with name containing: '{}'", methodNomenclature, ENTITY_NAME, name);
+        Page<InventoryItemResponse> page = repository.findAllByNameContainingIgnoreCase(name, pageable).map(mapper::toResponse);
+        log.debug("[{}] Fetched {} entities with name like '{}', page size: {}", methodNomenclature, ENTITY_NAME, name, page.getNumberOfElements());
+        return page;
     }
 
     @Override
