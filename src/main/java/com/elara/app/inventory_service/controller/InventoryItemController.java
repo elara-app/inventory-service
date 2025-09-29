@@ -110,4 +110,19 @@ public class InventoryItemController {
         return ResponseEntity.ok(response);
     }
 
+    // ========================================
+    // DELETE OPERATIONS
+    // ========================================
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+        @PathVariable @NotNull @Positive Long id
+    ) {
+        final String methodNomenclature = NOMENCLATURE + "-update";
+        log.info("[{}] Request to delete Uom id: {}", methodNomenclature, id);
+        service.deleteById(id);
+        log.info("[{}] Uom deleted: {}", methodNomenclature, id);
+        return ResponseEntity.noContent().build();
+    }
+
 }
