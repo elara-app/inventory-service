@@ -36,11 +36,12 @@ public class InventoryItemImp implements InventoryItemService {
     @Override
     @Transactional
     public InventoryItemResponse save(InventoryItemRequest request) {
+        final String methodNomenclature = NOMENCLATURE + "-save";
         try {
-            log.debug("[" + NOMENCLATURE + "-save] Attempting to create {} with name: {} and request: {}", ENTITY_NAME, request != null ? request.name() : null, request);
+            log.debug("[{}] Attempting to create {} with name: {} and request: {}", methodNomenclature, ENTITY_NAME, request != null ? request.name() : null, request);
             if (Boolean.TRUE.equals(isNameTaken(Objects.requireNonNull(request).name()))) {
                 String msg = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", request.name());
-                log.warn("[" + NOMENCLATURE + "-save] {}", msg);
+                log.warn("[{}] {}", methodNomenclature, msg);
                 throw new ResourceConflictException(new Object[]{"name", request.name()});
             }
             uomServiceClient.verifyUomById(request.baseUnitOfMeasureId());
@@ -52,10 +53,10 @@ public class InventoryItemImp implements InventoryItemService {
         } catch (ResourceConflictException | ResourceNotFoundException e) {
             throw e;
         } catch (DataIntegrityViolationException e) {
-            log.error("[" + NOMENCLATURE + "-save] Data integrity violation while saving {}: {}", ENTITY_NAME, e.getMessage());
+            log.error("[{}] Data integrity violation while saving {}: {}", methodNomenclature, ENTITY_NAME, e.getMessage());
             throw new ResourceConflictException(e.getMessage());
         } catch (Exception e) {
-            log.error("[" + NOMENCLATURE + "-save] Unexpected error while saving: {}: {}", ENTITY_NAME, e.getMessage(), e);
+            log.error("[{}] Unexpected error while saving: {}: {}", methodNomenclature, ENTITY_NAME, e.getMessage(), e);
         }
         return null;
     }
@@ -99,9 +100,10 @@ public class InventoryItemImp implements InventoryItemService {
 
     @Override
     public Boolean isNameTaken(String name) {
-        log.debug("[" + NOMENCLATURE + "-isNameTaken] checking if name '{}' is taken for {}", name, ENTITY_NAME);
+        String methodNomenclature = NOMENCLATURE + "-isNameTaken";
+        log.debug("[{}] checking if name '{}' is taken for {}", methodNomenclature, name, ENTITY_NAME);
         Boolean exists = repository.existsByNameIgnoreCase(name);
-        log.debug("[" + NOMENCLATURE + "-isNameTaken] Name '{}' taken: {}", name, exists);
+        log.debug("[{}] Name '{}' taken: {}", methodNomenclature, name, exists);
         return exists;
     }
 }

@@ -33,9 +33,10 @@ public class InventoryItemController {
     public ResponseEntity<InventoryItemResponse> create(
         @Valid @RequestBody InventoryItemRequest request
     ) {
-        log.info("[" + NOMENCLATURE + "-create] Request to create InventoryItem: {}", request);
+        final String methodNomenclature = NOMENCLATURE + "-create";
+        log.info("[{}] Request to create InventoryItem: {}", methodNomenclature, request);
         InventoryItemResponse response = service.save(request);
-        log.info("[" + NOMENCLATURE + "-create] InventoryItem created with id: {}", response.id());
+        log.info("[{}] InventoryItem created with id: {}", methodNomenclature, response.id());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
