@@ -79,6 +79,7 @@ public class InventoryItemImp implements InventoryItemService {
                 log.warn("[{}] {}", methodNomenclature, msg);
                 throw new ResourceConflictException(new Object[]{"name", update.name()});
             }
+            uomServiceClient.verifyUomById(update.baseUnitOfMeasureId());
             log.debug("[{}] Mapping update DTO to entity. Before: {}", methodNomenclature, existing);
             mapper.updateEntityFromDto(existing, update);
             String msg = messageService.getMessage("crud.update.success", ENTITY_NAME);
