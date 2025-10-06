@@ -3,9 +3,14 @@ spring:
     name: inventory-service
   datasource:
     url: ${DB_URL:}
-    username: ${DB_USERNAME:}
-    password: ${DB_PASSWORD:}
     driver-class-name: org.postgresql.Driver
+  config:
+    import: vault://secret/inventory-service/dev
+  cloud:
+    vault:
+      uri: http://localhost:8200
+      authentication: TOKEN
+      token: 00000000-0000-0000-0000-000000000000
   jpa:
     hibernate:
       ddl-auto: update
