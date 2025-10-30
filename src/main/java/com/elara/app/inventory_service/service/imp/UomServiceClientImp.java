@@ -14,8 +14,8 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class UomServiceClientImp implements UomServiceClient {
 
-    private static final String NOMENCLATURE = "Uom-service";
     private static final String ENTITY_NAME = "Uom";
+    private static final String NOMENCLATURE = ENTITY_NAME + "-service";
     private final RestTemplate restTemplate;
     private final MessageService messageService;
 
