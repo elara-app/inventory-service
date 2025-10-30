@@ -2,6 +2,7 @@ package com.elara.app.inventory_service.service.imp;
 
 import com.elara.app.inventory_service.dto.response.UomResponse;
 import com.elara.app.inventory_service.exceptions.ResourceNotFoundException;
+import com.elara.app.inventory_service.service.interfaces.UomServiceClient;
 import com.elara.app.inventory_service.utils.MessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Service
-public class UomServiceClient {
+public class UomServiceClientImp implements UomServiceClient {
 
     private static final String NOMENCLATURE = "Uom-service";
     private static final String ENTITY_NAME = "Uom";
@@ -22,7 +23,7 @@ public class UomServiceClient {
     @Value("${uom.service.name:unit-of-measure-service}")
     private String uomServiceName;
 
-    public UomServiceClient(RestTemplate restTemplate, MessageService messageService) {
+    public UomServiceClientImp(RestTemplate restTemplate, MessageService messageService) {
         this.restTemplate = restTemplate;
         this.messageService = messageService;
     }
