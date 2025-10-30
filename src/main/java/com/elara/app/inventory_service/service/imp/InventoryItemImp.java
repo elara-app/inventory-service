@@ -32,7 +32,7 @@ public class InventoryItemImp implements InventoryItemService {
     private final InventoryItemMapper mapper;
     private final InventoryItemRepository repository;
     private final MessageService messageService;
-    private final UomServiceClient uomServiceClient;
+    private final UomServiceClientImp uomServiceClientImp;
 
     @Override
     @Transactional
@@ -45,7 +45,7 @@ public class InventoryItemImp implements InventoryItemService {
                 log.warn("[{}] {}", methodNomenclature, msg);
                 throw new ResourceConflictException(new Object[]{"name", request.name()});
             }
-            uomServiceClient.verifyUomById(request.baseUnitOfMeasureId());
+            uomServiceClientImp.verifyUomById(request.baseUnitOfMeasureId());
             InventoryItem entity = mapper.toEntity(request);
             log.debug("[" + NOMENCLATURE + "save] Mapped DTO to entity: {}", entity);
             InventoryItem saved = repository.save(entity);
@@ -79,7 +79,7 @@ public class InventoryItemImp implements InventoryItemService {
                 log.warn("[{}] {}", methodNomenclature, msg);
                 throw new ResourceConflictException(new Object[]{"name", update.name()});
             }
-            uomServiceClient.verifyUomById(update.baseUnitOfMeasureId());
+            uomServiceClientImp.verifyUomById(update.baseUnitOfMeasureId());
             log.debug("[{}] Mapping update DTO to entity. Before: {}", methodNomenclature, existing);
             mapper.updateEntityFromDto(existing, update);
             String msg = messageService.getMessage("crud.update.success", ENTITY_NAME);
