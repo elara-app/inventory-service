@@ -78,14 +78,9 @@ public class InventoryItemImp implements InventoryItemService {
             log.info("[{}] {}", methodNomenclature, msg);
             return mapper.toResponse(existing);
         } catch (ResourceNotFoundException | ResourceConflictException e) {
+            String updateErrorMsg = messageService.getMessage("crud.update.error", ENTITY_NAME);
+            log.warn("[{}] {}", methodNomenclature, updateErrorMsg);
             throw e;
-        } catch (DataIntegrityViolationException e) {
-            String msg = messageService.getMessage("repository.update.error", ENTITY_NAME, e.getMessage());
-            log.error("[{}] {}", methodNomenclature, msg);
-            throw new UnexpectedErrorException(e.getMessage());
-        } catch (Exception e) {
-            log.error("[{}] Unexpected error while updating {}: {}", methodNomenclature, ENTITY_NAME, e.getMessage(), e);
-            throw new UnexpectedErrorException(e.getMessage());
         }
     }
 
