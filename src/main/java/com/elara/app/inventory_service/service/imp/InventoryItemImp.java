@@ -5,7 +5,6 @@ import com.elara.app.inventory_service.dto.response.InventoryItemResponse;
 import com.elara.app.inventory_service.dto.update.InventoryItemUpdate;
 import com.elara.app.inventory_service.exceptions.ResourceConflictException;
 import com.elara.app.inventory_service.exceptions.ResourceNotFoundException;
-import com.elara.app.inventory_service.exceptions.UnexpectedErrorException;
 import com.elara.app.inventory_service.mapper.InventoryItemMapper;
 import com.elara.app.inventory_service.model.InventoryItem;
 import com.elara.app.inventory_service.repository.InventoryItemRepository;
@@ -14,7 +13,6 @@ import com.elara.app.inventory_service.utils.MessageService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -88,26 +86,17 @@ public class InventoryItemImp implements InventoryItemService {
     @Transactional
     public void deleteById(Long id) {
         String methodNomenclature = NOMENCLATURE + "-deleteById";
-        try {
-            log.info("[{}] Attempting to delete {} with id: {}", methodNomenclature, ENTITY_NAME, id);
-            if (!repository.existsById(id)) {
-                String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
-                log.warn("[{}] {}", methodNomenclature, msg);
-                throw new ResourceNotFoundException(ENTITY_NAME, "id", id.toString());
-            }
-            repository.deleteById(id);
-            String msg = messageService.getMessage("crud.delete.success", ENTITY_NAME);
-            log.info("[{}] {}", methodNomenclature, msg);
-        } catch (ResourceNotFoundException | ResourceConflictException e) {
-            throw e;
-        } catch (DataIntegrityViolationException e) {
-            String msg = messageService.getMessage("repository.delete.error", ENTITY_NAME, e.getMessage());
-            log.error("[{}] {}", methodNomenclature, msg);
-            throw new UnexpectedErrorException(e.getMessage());
-        } catch (Exception e) {
-            log.error("[{}] Unexpected error while deleting {}: {}", methodNomenclature, ENTITY_NAME, e.getMessage(), e);
-            throw new UnexpectedErrorException(e.getMessage());
+        log.info("[{}] Attempting to delete {} with id: {}", methodNomenclature, ENTITY_NAME, id);
+        if (!repository.existsById(id)) {
+            String notFoundMsg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id);
+            String deleteErrorMsg = messageService.getMessage("crud.delete.error", ENTITY_NAME);
+            log.warn("[{}] {}", methodNomenclature, notFoundMsg);
+            log.warn("[{}] {}", methodNomenclature, deleteErrorMsg);
+            throw new ResourceNotFoundException(ENTITY_NAME, "id", id.toString());
         }
+        repository.deleteById(id);
+        String msg = messageService.getMessage("crud.delete.success", ENTITY_NAME);
+        log.info("[{}] {}", methodNomenclature, msg);
     }
 
     @Override
