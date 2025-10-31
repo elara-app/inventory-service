@@ -38,28 +38,20 @@ public class InventoryItemImp implements InventoryItemService {
     @Transactional
     public InventoryItemResponse save(InventoryItemRequest request) {
         final String methodNomenclature = NOMENCLATURE + "-save";
-        try {
-            log.info("[{}] Attempting to create {} with name: {} and request: {}", methodNomenclature, ENTITY_NAME, request != null ? request.name() : null, request);
-            if (Boolean.TRUE.equals(isNameTaken(Objects.requireNonNull(request).name()))) {
-                String msg = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", request.name());
-                log.warn("[{}] {}", methodNomenclature, msg);
-                throw new ResourceConflictException("name", request.name());
-            }
-            uomServiceClientImp.verifyUomById(request.baseUnitOfMeasureId());
-            InventoryItem entity = mapper.toEntity(request);
-            log.info("[{}] Mapped DTO to entity: {}", methodNomenclature, entity);
-            InventoryItem saved = repository.save(entity);
-            log.info("[{}] {}", methodNomenclature, messageService.getMessage("crud.create.success", ENTITY_NAME));
-            return mapper.toResponse(saved);
-        } catch (ResourceConflictException | ResourceNotFoundException e) {
-            throw e;
-        } catch (DataIntegrityViolationException e) {
-            log.error("[{}] Data integrity violation while saving {}: {}", methodNomenclature, ENTITY_NAME, e.getMessage());
-            throw new ResourceConflictException(e.getMessage());
-        } catch (Exception e) {
-            log.error("[{}] Unexpected error while saving: {}: {}", methodNomenclature, ENTITY_NAME, e.getMessage(), e);
+        log.info("[{}] Attempting to create {} with name: {} and request: {}", methodNomenclature, ENTITY_NAME, request != null ? request.name() : null, request);
+        if (Boolean.TRUE.equals(isNameTaken(Objects.requireNonNull(request).name()))) {
+            String alreadyExistsMsg = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", request.name());
+            String saveErrorMsg = messageService.getMessage("crud.save.error", ENTITY_NAME);
+            log.warn("[{}] {}", methodNomenclature, saveErrorMsg);
+            log.warn("[{}] {}", methodNomenclature, alreadyExistsMsg);
+            throw new ResourceConflictException("name", request.name());
         }
-        return null;
+        uomServiceClientImp.verifyUomById(request.baseUnitOfMeasureId());
+        InventoryItem entity = mapper.toEntity(request);
+        log.info("[{}] Mapped DTO to entity: {}", methodNomenclature, entity);
+        InventoryItem saved = repository.save(entity);
+        log.info("[{}] {}", methodNomenclature, messageService.getMessage("crud.create.success", ENTITY_NAME));
+        return mapper.toResponse(saved);
     }
 
     @Override
