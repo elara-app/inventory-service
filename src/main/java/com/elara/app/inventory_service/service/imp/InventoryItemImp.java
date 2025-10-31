@@ -27,8 +27,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class InventoryItemImp implements InventoryItemService {
 
-    private static final String ENTITY_NAME = "Inventory Item";
-    private static final String NOMENCLATURE = "InventoryItem-service";
+    private static final String ENTITY_NAME = "InventoryItem";
+    private static final String NOMENCLATURE = ENTITY_NAME + "-service";
     private final InventoryItemMapper mapper;
     private final InventoryItemRepository repository;
     private final MessageService messageService;
