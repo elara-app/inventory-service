@@ -47,9 +47,9 @@ public class InventoryItemImp implements InventoryItemService {
             }
             uomServiceClientImp.verifyUomById(request.baseUnitOfMeasureId());
             InventoryItem entity = mapper.toEntity(request);
-            log.debug("[" + NOMENCLATURE + "save] Mapped DTO to entity: {}", entity);
+            log.debug("[{}] Mapped DTO to entity: {}", methodNomenclature, entity);
             InventoryItem saved = repository.save(entity);
-            log.debug("[" + NOMENCLATURE + "save] {}", messageService.getMessage("crud.create.success", ENTITY_NAME));
+            log.debug("[{}] {}", methodNomenclature, messageService.getMessage("crud.create.success", ENTITY_NAME));
             return mapper.toResponse(saved);
         } catch (ResourceConflictException | ResourceNotFoundException e) {
             throw e;
