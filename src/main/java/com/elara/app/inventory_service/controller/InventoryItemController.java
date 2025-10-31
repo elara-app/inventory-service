@@ -28,7 +28,8 @@ import org.springframework.web.bind.annotation.*;
 public class InventoryItemController {
 
     private final InventoryItemService service;
-    private static final String NOMENCLATURE = "InventoryItem-controller";
+    private static final String ENTITY_NAME = "InventoryItem";
+    private static final String NOMENCLATURE = ENTITY_NAME + "-controller";
 
     // ========================================
     // CREATE OPERATIONS
