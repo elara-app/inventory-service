@@ -103,7 +103,7 @@ public class InventoryItemImp implements InventoryItemService {
     public InventoryItemResponse findById(Long id) {
         String methodNomenclature = NOMENCLATURE + "-findById";
         log.info("[{}] Searching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
-        Optional<InventoryItemResponse> response = repository.findById(id).map(mapper::toResponse);
+        Optional<InventoryItem> response = repository.findById(id);
         if (response.isEmpty()) {
             String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
             log.warn("[{}] {}", methodNomenclature, msg);
@@ -111,7 +111,7 @@ public class InventoryItemImp implements InventoryItemService {
         }
         String msg = messageService.getMessage("crud.read.success", ENTITY_NAME);
         log.info("[{}] {}", methodNomenclature, msg);
-        return response.get();
+        return mapper.toResponse(response.get());
     }
 
     @Override
