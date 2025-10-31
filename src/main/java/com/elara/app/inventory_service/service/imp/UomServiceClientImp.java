@@ -32,10 +32,10 @@ public class UomServiceClientImp implements UomServiceClient {
         final String methodNomenclature = NOMENCLATURE + "-existsById";
         final String url = "http://" + uomServiceName + "/api/v1/uom/{id}";
         try {
-            log.debug("[{}] Searching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
+            log.info("[{}] Searching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
             restTemplate.getForObject(url, UomResponse.class, id);
             String msg = messageService.getMessage("crud.read.success", ENTITY_NAME);
-            log.debug("[{}] {}", methodNomenclature, msg);
+            log.info("[{}] {}", methodNomenclature, msg);
         } catch (HttpClientErrorException.NotFound e) {
             String msg = messageService.getMessage("crud.not.found", "UOM", "id", id.toString());
             log.warn("[{}] {}", methodNomenclature, msg);
