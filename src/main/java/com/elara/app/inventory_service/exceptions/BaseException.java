@@ -18,13 +18,6 @@ public class BaseException extends RuntimeException {
         this.message = getLocalizeMessage(errorCode, args);
     }
 
-    public BaseException(ErrorCode errorCode, String customMessage, Object... args) {
-        String baseMessage = getLocalizeMessage(errorCode, args);
-        this.code = errorCode.getCode();
-        this.value = errorCode.getValue();
-        this.message = customMessage != null ? baseMessage + ": " + customMessage : baseMessage;
-    }
-
     private String getLocalizeMessage(ErrorCode errorCode, Object... args) {
         try {
             MessageService messageService = ApplicationContextHolder.getBean(MessageService.class);

@@ -5,6 +5,7 @@ import com.elara.app.inventory_service.utils.ErrorCode;
 import com.elara.app.inventory_service.utils.MessageService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @ControllerAdvice
 @RequiredArgsConstructor
@@ -66,6 +69,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException exception, HttpServletRequest request) {
+        String detail = getDataFromDataIntegrityExceptionMessage(exception.getMessage());
+        ErrorResponse errorResponse = createErrorResponse(
+            ErrorCode.DATABASE_ERROR.getCode(),
+            ErrorCode.DATABASE_ERROR.getValue(),
+            "Integrity violation: " + messageService.getMessage("global.error.database", detail),
+            request.getRequestURI()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception exception, HttpServletRequest request) {
         ErrorResponse errorResponse = createErrorResponse(
@@ -75,6 +90,12 @@ public class GlobalExceptionHandler {
             request.getRequestURI()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private static String getDataFromDataIntegrityExceptionMessage(String exceptionMessage) {
+        String notAvailable = "<>";
+        Matcher detailMatcher = Pattern.compile("Detail:\\s*([^.]+)").matcher(exceptionMessage);
+        return detailMatcher.find() ? detailMatcher.group(1).trim() : notAvailable;
     }
 
     private ErrorResponse createErrorResponse(int code, String value, String message, String path) {
