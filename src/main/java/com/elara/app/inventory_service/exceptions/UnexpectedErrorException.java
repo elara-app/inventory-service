@@ -6,8 +6,4 @@ public class UnexpectedErrorException extends BaseException {
     public UnexpectedErrorException(Object... args) {
         super(ErrorCode.UNEXPECTED_ERROR, args);
     }
-
-    public UnexpectedErrorException(String customMessage, Object... args) {
-        super(ErrorCode.UNEXPECTED_ERROR, customMessage, args);
-    }
 }

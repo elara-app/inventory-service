@@ -6,16 +6,20 @@ import com.elara.app.inventory_service.service.interfaces.UomServiceClient;
 import com.elara.app.inventory_service.utils.MessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
 
 @Slf4j
 @Service
 public class UomServiceClientImp implements UomServiceClient {
 
-    private static final String NOMENCLATURE = "Uom-service";
     private static final String ENTITY_NAME = "Uom";
+    private static final String NOMENCLATURE = ENTITY_NAME + "-service";
     private final RestTemplate restTemplate;
     private final MessageService messageService;
 
@@ -30,16 +34,26 @@ public class UomServiceClientImp implements UomServiceClient {
 
     public void verifyUomById(Long id) {
         final String methodNomenclature = NOMENCLATURE + "-existsById";
-        final String url = "http://" + uomServiceName + "/api/v1/uom/{id}";
+        final String uomBaseUrl = "http://" + uomServiceName;
         try {
-            log.debug("[{}] Searching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
-            restTemplate.getForObject(url, UomResponse.class, id);
+
+            URI uri = UriComponentsBuilder
+                .fromUriString(uomBaseUrl)
+                .pathSegment(String.valueOf(id))
+                .build()
+                .toUri();
+
+            log.info("[{}] Searching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
+            ResponseEntity<UomResponse> response = restTemplate.getForEntity(uri, UomResponse.class);
+            log.info("{}", response.getStatusCode());
+            log.info("{}", response.getHeaders());
+            log.info("{}", response.getBody());
             String msg = messageService.getMessage("crud.read.success", ENTITY_NAME);
-            log.debug("[{}] {}", methodNomenclature, msg);
+            log.info("[{}] {}", methodNomenclature, msg);
         } catch (HttpClientErrorException.NotFound e) {
             String msg = messageService.getMessage("crud.not.found", "UOM", "id", id.toString());
             log.warn("[{}] {}", methodNomenclature, msg);
-            throw new ResourceNotFoundException(new Object[]{ENTITY_NAME, "id", id.toString()});
+            throw new ResourceNotFoundException(ENTITY_NAME, "id", id.toString());
         }
     }
 
