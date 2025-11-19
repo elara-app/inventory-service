@@ -20,7 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/api/v1/inventory-item", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "item/", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Validated
 @Slf4j
@@ -28,7 +28,8 @@ import org.springframework.web.bind.annotation.*;
 public class InventoryItemController {
 
     private final InventoryItemService service;
-    private static final String NOMENCLATURE = "InventoryItem-controller";
+    private static final String ENTITY_NAME = "InventoryItem";
+    private static final String NOMENCLATURE = ENTITY_NAME + "-controller";
 
     // ========================================
     // CREATE OPERATIONS
@@ -49,7 +50,7 @@ public class InventoryItemController {
     // READ OPERATIONS
     // ========================================
 
-    @GetMapping("/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<InventoryItemResponse> getById(
         @PathVariable @NotNull @Positive Long id
     ) {
@@ -71,7 +72,7 @@ public class InventoryItemController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/search")
+    @GetMapping("search")
     public ResponseEntity<Page<InventoryItemResponse>> getAllByName(
         @RequestParam @NotBlank String name,
         @PageableDefault(size = 20, sort = "name") Pageable pageable
@@ -83,7 +84,7 @@ public class InventoryItemController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/check-name")
+    @GetMapping("check-name")
     public ResponseEntity<Boolean> isNameTaken(
         @RequestParam @NotBlank String name
     ) {
@@ -98,7 +99,7 @@ public class InventoryItemController {
     // UPDATE OPERATIONS
     // ========================================
 
-    @PutMapping("/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<InventoryItemResponse> update(
         @PathVariable @NotNull @Positive Long id,
         @Valid @RequestBody InventoryItemUpdate update
@@ -114,7 +115,7 @@ public class InventoryItemController {
     // DELETE OPERATIONS
     // ========================================
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<Void> delete(
         @PathVariable @NotNull @Positive Long id
     ) {
