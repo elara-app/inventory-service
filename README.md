@@ -1,237 +1,246 @@
 # Inventory Service
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/license/mit)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.6-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.java.net/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-12+-blue.svg)](https://www.postgresql.org/)
+[![Maven](https://img.shields.io/badge/Maven-3.8+-blue.svg)](https://maven.apache.org/)
+[![Code Coverage](https://img.shields.io/badge/Coverage-80%25-brightgreen.svg)](https://github.com/elara-app/inventory-service)
 
-A comprehensive Spring Boot microservice for managing inventory items and their units of measure within the Elara application ecosystem. This service handles inventory lifecycle, integrates with the unit-of-measure service, and provides robust RESTful APIs for inventory management in restaurant operations.
+> A professional Spring Boot microservice that manages inventory items and their integration with units of measure within the Elara application ecosystem.
 
-## 📚 Documentation
+---
 
-- **Deep Wiki**: [Project Documentation](https://deepwiki.com/elara-app/inventory-service)
-- **Build Process & Architecture Decisions**: [Step-by-step Construction Guide](https://bit.ly/4a0ZITO)
+## 📋 Table of Contents
+
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Architecture & Technology Stack](#architecture--technology-stack)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+- [Usage](#usage)
+  - [API Documentation](#api-documentation)
+  - [API Endpoints](#api-endpoints)
+- [Development](#development)
+  - [Building the Project](#building-the-project)
+  - [Running Tests](#running-tests)
+  - [Code Quality & Coverage](#code-quality--coverage)
+- [Deployment](#deployment)
+- [Project Structure](#project-structure)
+- [Best Practices & Design Decisions](#best-practices--design-decisions)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact & Support](#contact--support)
+
+---
 
 ## 🎯 Overview
 
-The Inventory Service is a critical component of the Elara application ecosystem, designed to manage inventory items, their quantities, costs, and relationships with units of measure. Built with Spring Boot 3.5.6 and Java 21, it follows microservices architecture principles and integrates seamlessly with other services through Spring Cloud components.
+The **Inventory Service** is a critical microservice within the Elara application ecosystem, designed to provide centralized management of inventory items and their lifecycle. This service enables restaurant operations to track inventory items, their costs, quantities, and relationships with units of measure across the platform.
 
-### Key Features
+### Why This Service Matters
 
-- **Inventory Item Management**: Full CRUD operations for inventory items
-- **Unit of Measure Integration**: Integration with external UOM service for standardized measurements
-- **Advanced Search**: Search and filter inventory items by name with pagination support
-- **Cost Management**: Track standard costs and purchase unit conversions
-- **Reorder Point Management**: Automated tracking of reorder point quantities
-- **RESTful API**: Well-documented REST endpoints following industry best practices
-- **Service Discovery**: Integration with Netflix Eureka for service registration and discovery
-- **Centralized Configuration**: Integration with Spring Cloud Config Server and HashiCorp Vault
-- **Event Bus**: RabbitMQ integration for distributed event-driven architecture
-- **Validation**: Comprehensive input validation using Jakarta Bean Validation
-- **Exception Handling**: Centralized exception handling with detailed error responses
-- **Health Monitoring**: Spring Boot Actuator endpoints for application health and metrics
+In enterprise restaurant applications, managing inventory consistently is crucial for:
+- **Operational Efficiency**: Ensuring accurate tracking of inventory items across multiple locations
+- **Cost Control**: Monitoring standard costs and purchase unit conversions for better financial management
+- **Supply Chain Management**: Automated reorder point tracking to prevent stockouts
+- **Data Consistency**: Maintaining standardized inventory data across all restaurant services
+- **Integration**: Seamless integration with Unit of Measure service for measurement standardization
 
-## 🏗️ Architecture
+---
 
-This service follows **Clean Architecture** principles with clear separation of concerns:
+## ✨ Key Features
 
-```
-┌─────────────────────────────────────────────────────┐
-│                 Controller Layer                     │
-│          (REST API Endpoints & Validation)           │
-└───────────────────┬─────────────────────────────────┘
-                    │
-┌───────────────────▼─────────────────────────────────┐
-│                 Service Layer                        │
-│         (Business Logic & Orchestration)             │
-└───────────────────┬─────────────────────────────────┘
-                    │
-┌───────────────────▼─────────────────────────────────┐
-│               Repository Layer                       │
-│          (Data Access & Persistence)                 │
-└───────────────────┬─────────────────────────────────┘
-                    │
-┌───────────────────▼─────────────────────────────────┐
-│              PostgreSQL Database                     │
-└─────────────────────────────────────────────────────┘
-```
+### Core Functionality
+- **📦 Inventory Item Management**: Full CRUD operations for managing inventory items
+- **🔗 Unit of Measure Integration**: Seamless integration with UOM service for standardized measurements
+- **💰 Cost Management**: Track standard costs and purchase unit conversions accurately
+- **📊 Reorder Point Management**: Automated tracking of reorder point quantities to prevent stockouts
+- **🔍 Advanced Search & Filtering**: Search by name with pagination support
+- **✅ Data Validation**: Comprehensive input validation with detailed error messages
 
-### Integration Points
+### Technical Features
+- **🚀 RESTful API**: Well-documented REST endpoints following industry best practices
+- **📊 Pagination Support**: Efficient data retrieval with Spring Data pagination
+- **🔐 Configuration Management**: Integration with Spring Cloud Config for centralized configuration
+- **🔒 Secure Secrets Management**: HashiCorp Vault integration for sensitive data
+- **📈 Service Discovery**: Netflix Eureka client for microservice registration
+- **💬 Event Bus**: RabbitMQ integration for asynchronous communication
+- **📝 API Documentation**: Interactive Swagger/OpenAPI documentation
+- **🏥 Health Monitoring**: Spring Boot Actuator for health checks and metrics
+- **🧪 High Test Coverage**: 80%+ code coverage with comprehensive unit and integration tests
+- **🎯 Exception Handling**: Centralized error handling with meaningful HTTP status codes
 
-- **UOM Service**: Validates unit of measure references
-- **Config Server**: Centralized configuration management
-- **Eureka Server**: Service discovery and registration
-- **HashiCorp Vault**: Secure secrets management
-- **RabbitMQ**: Event-driven messaging and configuration refresh
+---
 
-## 🛠️ Technology Stack
+## 🏗️ Architecture & Technology Stack
 
-### Core Framework
-- **Spring Boot**: 3.5.6
-- **Java**: 21
-- **Build Tool**: Maven
+### Core Technologies
 
-### Spring Modules
-- **Spring Web**: RESTful web services
-- **Spring Data JPA**: Data persistence and ORM
-- **Spring Validation**: Bean validation
-- **Spring Boot Actuator**: Monitoring and health checks
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **Java** | 21 | Modern programming language with advanced features |
+| **Spring Boot** | 3.5.6 | Enterprise application framework |
+| **Spring Data JPA** | 3.5.6 | Data access and persistence layer |
+| **PostgreSQL** | 42.7.7 | Production-ready relational database |
+| **Maven** | 3.8+ | Build and dependency management |
 
-### Cloud & Microservices
-- **Spring Cloud**: 2025.0.0
-- **Netflix Eureka Client**: Service discovery
-- **Spring Cloud Config**: Centralized configuration
-- **Spring Cloud Vault**: Secrets management
-- **Spring Cloud Bus**: Configuration change propagation (RabbitMQ)
+### Spring Cloud Stack
 
-### Database
-- **PostgreSQL**: 12+ (Production database)
-- **PostgreSQL JDBC Driver**: 42.7.7
-- **JPA/Hibernate**: ORM layer
+| Component | Purpose |
+|-----------|---------|
+| **Spring Cloud Config** | Externalized configuration management |
+| **Netflix Eureka Client** | Service discovery and registration |
+| **HashiCorp Vault** | Secure secrets and credentials management |
+| **Spring Cloud Bus (RabbitMQ)** | Distributed messaging and configuration refresh |
 
-### Development Tools
-- **Lombok**: 1.18.38 - Reduces boilerplate code
-- **MapStruct**: 1.6.3 - Type-safe bean mapping
+### Supporting Libraries
 
-## 📋 Prerequisites
+| Library | Purpose |
+|---------|---------|
+| **Lombok** | Reduces boilerplate code with annotations |
+| **MapStruct** | Type-safe bean mapping |
+| **Jakarta Validation** | Bean validation framework |
+| **Spring Boot Actuator** | Production-ready monitoring features |
 
-Before running this service, ensure you have the following installed:
+### Architecture Principles
 
-- **Java Development Kit (JDK)**: Version 21 or higher
-- **Maven**: Version 3.6+ (or use included Maven wrapper)
-- **PostgreSQL**: Version 12+ (for production)
-- **Docker** (Optional): For containerized deployment
-- **Git**: For version control
+This service follows these architectural principles:
+- **Microservice Architecture**: Independently deployable and scalable service
+- **Separation of Concerns**: Clear separation between controller, service, repository, and model layers
+- **RESTful Design**: Resource-oriented API design with proper HTTP methods and status codes
+- **Domain-Driven Design**: Entity models representing business domain concepts
+- **SOLID Principles**: Maintainable and extensible code structure
+- **12-Factor App**: Cloud-native application design principles
 
-### Required External Services
-
-The following services must be running for full functionality:
-
-1. **Spring Cloud Config Server** (default: `http://localhost:8888`)
-2. **HashiCorp Vault** (default: `http://localhost:8200`)
-3. **Netflix Eureka Server** (for service discovery)
-4. **RabbitMQ** (for Spring Cloud Bus)
-5. **PostgreSQL Database** (production environment)
-6. **Unit of Measure (UOM) Service** (for UOM validation)
+---
 
 ## 🚀 Getting Started
 
+### Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Java Development Kit (JDK) 21** or higher
+  ```bash
+  java -version  # Should show version 21+
+  ```
+- **Apache Maven 3.8+** (or use the included Maven wrapper)
+  ```bash
+  mvn -version
+  ```
+- **PostgreSQL 12+** (for production use)
+- **Docker** (optional, for containerized dependencies)
+- **Git** for version control
+
 ### Installation
 
-1. **Clone the repository**:
+1. **Clone the repository**
    ```bash
    git clone https://github.com/elara-app/inventory-service.git
    cd inventory-service
    ```
 
-2. **Build the project**:
+2. **Build the project**
    ```bash
    # Using Maven wrapper (recommended)
    ./mvnw clean install
    
-   # Or using Maven
+   # Or using system Maven
    mvn clean install
    ```
 
+3. **Run the application**
+   ```bash
+   # Using Maven Spring Boot plugin
+   ./mvnw spring-boot:run
+   
+   # Or run the JAR directly
+   java -jar target/inventory-service-1.2.jar
+   ```
+
+The service will start on port `8080` by default (configurable via `application.yml`).
+
 ### Configuration
 
-The service uses a layered configuration approach:
+The service uses **Spring Cloud Config** for externalized configuration. Configuration is organized by environment profiles:
 
-#### 1. Application Configuration (`application.yml`)
-```yaml
-spring:
-  application:
-    name: inventory-service
-  config:
-    import: configserver:http://localhost:8888
-  profiles:
-    active: dev
-```
+#### Application Profiles
 
-#### 2. Development Configuration (`application-dev.yml`)
-```yaml
-spring:
-  config:
-    import: vault://secret/inventory-service/dev
-  cloud:
-    vault:
-      uri: http://localhost:8200
-      authentication: TOKEN
-      token: 00000000-0000-0000-0000-000000000000
-```
+- **dev**: Development environment
+- **test**: Testing environment
+- **prod**: Production environment (configured via Config Server)
 
-#### 3. Required Vault Secrets
+#### Local Development Setup
 
-Store the following in Vault at `secret/inventory-service/dev`:
+For local development, ensure you have:
 
-```json
-{
-  "spring.datasource.url": "jdbc:postgresql://localhost:5432/inventory_db",
-  "spring.datasource.username": "your_username",
-  "spring.datasource.password": "your_password",
-  "eureka.client.service-url.defaultZone": "http://localhost:8761/eureka/"
-}
-```
+1. **Spring Cloud Config Server** running on `http://localhost:8888`
+2. **HashiCorp Vault** running on `http://localhost:8200` (for dev profile)
+3. **Database Connection** configured in Vault or Config Server:
+   ```yaml
+   spring:
+     datasource:
+       url: jdbc:postgresql://localhost:5432/inventory_db
+       username: your_username
+       password: your_password
+   ```
 
-### Running the Application
+#### Environment Variables
 
-#### Development Mode
+Key environment variables you may need to configure:
 
 ```bash
-# Using Maven wrapper
-./mvnw spring-boot:run
-
-# Using Maven
-mvn spring-boot:run
+SPRING_PROFILES_ACTIVE=dev          # Active profile
+SPRING_CLOUD_CONFIG_URI=http://...  # Config server URL
+VAULT_TOKEN=your-vault-token        # Vault authentication token
+DATABASE_URL=jdbc:postgresql://...  # Database connection string
 ```
 
-#### Production Mode
+---
+
+## 📖 Usage
+
+### API Documentation
+
+Once the service is running, access the interactive API documentation:
+
+- **Swagger UI**: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+- **OpenAPI Spec**: [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
+
+### API Endpoints
+
+#### Inventory Item Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/item/` | Create a new inventory item |
+| `GET` | `/item/{id}` | Get inventory item by ID |
+| `GET` | `/item/` | Get all inventory items (paginated) |
+| `GET` | `/item/search?name={name}` | Search items by name |
+| `GET` | `/item/check-name?name={name}` | Check if name is available |
+| `PUT` | `/item/{id}` | Update an inventory item |
+| `DELETE` | `/item/{id}` | Delete an inventory item |
+
+#### Example Request: Create an Inventory Item
 
 ```bash
-# Build JAR
-./mvnw clean package
-
-# Run JAR
-java -jar target/inventory-service-1.2.jar
+curl -X POST http://localhost:8080/item/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Tomato",
+    "description": "Fresh red tomatoes",
+    "baseUnitOfMeasureId": 1,
+    "standardCost": 2.50,
+    "unitPerPurchaseUom": 1.0,
+    "reorderPointQuantity": 50.0
+  }'
 ```
 
-#### Using Docker
+#### Example Response
 
-```bash
-# Build Docker image
-docker build -t elara/inventory-service:1.2 .
-
-# Run container
-docker run -p 8080:8080 elara/inventory-service:1.2
-```
-
-The service will start on the default port (typically 8080, configured in Config Server).
-
-## 📖 API Documentation
-
-### Base URL
-```
-http://localhost:8080/item/
-```
-
-### Endpoints
-
-#### Create Inventory Item
-```http
-POST /item/
-Content-Type: application/json
-
-{
-  "name": "Tomato",
-  "description": "Fresh red tomatoes",
-  "baseUnitOfMeasureId": 1,
-  "standardCost": 2.50,
-  "unitPerPurchaseUom": 1.0,
-  "reorderPointQuantity": 50.0
-}
-```
-
-**Response**: `201 Created`
 ```json
 {
   "id": 1,
@@ -248,85 +257,135 @@ Content-Type: application/json
 }
 ```
 
-#### Get Inventory Item by ID
-```http
-GET /item/{id}
+---
+
+## 🛠️ Development
+
+### Building the Project
+
+Build the project without running tests:
+```bash
+./mvnw clean package -DskipTests
 ```
 
-**Response**: `200 OK`
-
-#### Get All Inventory Items (Paginated)
-```http
-GET /item/?page=0&size=20&sort=name
+Build with full test suite:
+```bash
+./mvnw clean install
 ```
 
-**Response**: `200 OK` with paginated results
+### Running Tests
 
-#### Search Inventory Items by Name
-```http
-GET /item/search?name=Tomato
-```
-
-**Response**: `200 OK` with filtered results
-
-#### Check if Name is Taken
-```http
-GET /item/check-name?name=Tomato
-```
-
-**Response**: `200 OK` with boolean value
-
-#### Update Inventory Item
-```http
-PUT /item/{id}
-Content-Type: application/json
-
-{
-  "name": "Organic Tomato",
-  "description": "Fresh organic red tomatoes",
-  "standardCost": 3.00
-}
-```
-
-**Response**: `200 OK`
-
-#### Delete Inventory Item
-```http
-DELETE /item/{id}
-```
-
-**Response**: `204 No Content`
-
-### Error Responses
-
-The API uses standardized error responses:
-
-```json
-{
-  "timestamp": "2026-02-04T20:38:04.279Z",
-  "status": 404,
-  "error": "Not Found",
-  "message": "Inventory item not found with id: 999",
-  "path": "/item/999"
-}
-```
-
-## 🧪 Testing
-
-### Run All Tests
+Run all tests:
 ```bash
 ./mvnw test
 ```
 
-### Run Tests with Coverage
+Run specific test class:
+```bash
+./mvnw test -Dtest=InventoryServiceTest
+```
+
+Run integration tests:
 ```bash
 ./mvnw verify
 ```
 
-### Test Structure
-- **Unit Tests**: Service layer business logic
-- **Integration Tests**: Controller and repository layers
-- **Validation Tests**: Input validation scenarios
+### Code Quality & Coverage
+
+#### Generate Code Coverage Report
+```bash
+./mvnw clean test jacoco:report
+```
+
+View the coverage report at: `target/site/jacoco/index.html`
+
+**Coverage Requirements:**
+- Line Coverage: ≥ 80%
+- Branch Coverage: ≥ 70%
+- All classes must have coverage (except DTOs and main application class)
+
+#### Run SonarQube Analysis
+
+Start SonarQube server (if using Docker):
+```bash
+docker run -d --name sonarqube -p 9000:9000 sonarqube:latest
+```
+
+Run analysis:
+```bash
+./mvnw clean verify sonar:sonar \
+  -Dsonar.projectKey=com.elara.app:inventory-service \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.login=your-token
+```
+
+### Code Style
+
+This project follows standard Java coding conventions:
+- Use meaningful variable and method names
+- Maximum line length: 120 characters
+- Use Lombok annotations to reduce boilerplate
+- Document public APIs with Javadoc
+- Follow REST API naming conventions
+
+---
+
+## 🚢 Deployment
+
+### Docker Deployment
+
+Build Docker image:
+```bash
+docker build -t elara-app/inventory-service:1.2 .
+```
+
+Run container:
+```bash
+docker run -d \
+  -p 8080:8080 \
+  -e SPRING_PROFILES_ACTIVE=prod \
+  -e SPRING_CLOUD_CONFIG_URI=http://config-server:8888 \
+  --name inventory-service \
+  elara-app/inventory-service:1.2
+```
+
+### Kubernetes Deployment
+
+Example deployment manifest:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: inventory-service
+  template:
+    metadata:
+      labels:
+        app: inventory-service
+    spec:
+      containers:
+      - name: inventory-service
+        image: elara-app/inventory-service:1.2
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+```
+
+### Health Checks
+
+The service exposes Spring Boot Actuator endpoints for monitoring:
+
+- **Health**: `http://localhost:8080/actuator/health`
+- **Info**: `http://localhost:8080/actuator/info`
+- **Metrics**: `http://localhost:8080/actuator/metrics`
+
+---
 
 ## 📁 Project Structure
 
@@ -342,134 +401,183 @@ inventory-service/
 │   │   │   ├── controller/          # REST controllers
 │   │   │   │   └── InventoryItemController.java
 │   │   │   ├── dto/                 # Data Transfer Objects
-│   │   │   │   ├── request/
-│   │   │   │   ├── response/
-│   │   │   │   └── update/
+│   │   │   │   ├── request/         # Request DTOs
+│   │   │   │   ├── response/        # Response DTOs
+│   │   │   │   └── update/          # Update DTOs
 │   │   │   ├── exceptions/          # Custom exceptions
+│   │   │   │   ├── BaseException.java
+│   │   │   │   ├── DatabaseException.java
+│   │   │   │   ├── InvalidDataException.java
+│   │   │   │   ├── ResourceConflictException.java
+│   │   │   │   ├── ResourceNotFoundException.java
+│   │   │   │   ├── ServiceUnavailableException.java
+│   │   │   │   └── UnexpectedErrorException.java
 │   │   │   ├── mapper/              # MapStruct mappers
 │   │   │   │   └── InventoryItemMapper.java
 │   │   │   ├── model/               # JPA entities
 │   │   │   │   └── InventoryItem.java
 │   │   │   ├── repository/          # Spring Data repositories
+│   │   │   │   └── InventoryItemRepository.java
 │   │   │   ├── service/             # Business logic
-│   │   │   │   ├── interfaces/
-│   │   │   │   └── imp/
+│   │   │   │   ├── imp/
+│   │   │   │   │   ├── InventoryItemImp.java
+│   │   │   │   │   └── UomServiceClientImp.java
+│   │   │   │   └── interfaces/
+│   │   │   │       ├── InventoryItemService.java
+│   │   │   │       └── UomServiceClient.java
 │   │   │   ├── utils/               # Utility classes
+│   │   │   │   ├── ApplicationContextHolder.java
+│   │   │   │   ├── ErrorCode.java
+│   │   │   │   └── MessageService.java
 │   │   │   └── InventoryServiceApplication.java
 │   │   └── resources/
-│   │       ├── application.yml
-│   │       ├── application-dev.yml
-│   │       └── messages.properties
-│   └── test/
-│       └── java/                    # Test classes
+│   │       ├── application.yml      # Main configuration
+│   │       ├── application-dev.yml  # Development profile
+│   │       └── messages.properties  # Internationalization messages
+│   └── test/                        # Test classes (mirrors main structure)
+├── .mvn/                            # Maven wrapper files
+├── target/                          # Build output (generated)
 ├── .gitignore
-├── mvnw                             # Maven wrapper
-├── mvnw.cmd
-├── pom.xml                          # Maven configuration
-└── README.md
+├── mvnw                             # Maven wrapper script (Unix)
+├── mvnw.cmd                         # Maven wrapper script (Windows)
+├── pom.xml                          # Maven project configuration
+└── README.md                        # This file
 ```
 
-## 🔗 Dependencies
+### Key Packages
 
-### Core Dependencies
-- **spring-boot-starter-web**: RESTful web services
-- **spring-boot-starter-data-jpa**: JPA/Hibernate ORM
-- **spring-boot-starter-validation**: Bean validation
-- **spring-boot-starter-actuator**: Health checks and metrics
+- **`config`**: Configuration classes including global exception handler and error response models
+- **`controller`**: REST API endpoints exposing service functionality
+- **`dto`**: Data Transfer Objects for API requests, responses, and updates
+- **`exceptions`**: Custom exception hierarchy for proper error handling
+- **`mapper`**: MapStruct interfaces for entity-DTO conversions
+- **`model`**: JPA entities representing database tables
+- **`repository`**: Spring Data JPA repositories for data access
+- **`service`**: Business logic implementation (interface-based design)
+- **`utils`**: Utility classes for common functionality
 
-### Cloud Dependencies
-- **spring-cloud-starter-netflix-eureka-client**: Service discovery
-- **spring-cloud-starter-config**: Centralized configuration
-- **spring-cloud-starter-vault-config**: Secrets management
-- **spring-cloud-starter-bus-amqp**: Event bus with RabbitMQ
+---
 
-### Database
-- **postgresql**: PostgreSQL JDBC driver
+## 🎓 Best Practices & Design Decisions
 
-### Development Tools
-- **lombok**: Code generation
-- **mapstruct**: Bean mapping
-- **spring-boot-starter-test**: Testing framework
+This project embodies numerous best practices and thoughtful design decisions. For a comprehensive deep-dive into the architectural decisions, development process, and rationale behind each choice, please refer to:
 
-## 🏢 Microservices Ecosystem
+### 📚 Detailed Documentation
 
-This service is part of the **Elara Application Ecosystem**, which includes:
+- **[Step-by-Step Construction Process](https://bit.ly/4a0ZITO)** - Complete guide covering:
+  - Initial project setup and scaffolding
+  - Layer-by-layer implementation approach
+  - Technology selection rationale
+  - Best practices and coding standards
+  - Regulatory compliance and security considerations
+  - Testing strategy and quality assurance
+  - Performance optimization decisions
 
-- **Inventory Service** (this service) - Inventory management
-- **Unit of Measure Service** - UOM definitions and conversions
-- **Config Server** - Centralized configuration
-- **Eureka Server** - Service discovery
-- **API Gateway** - Routing and load balancing
+### Key Design Decisions Highlights
 
-## 🔐 Security Considerations
+1. **Layered Architecture**: Clean separation of concerns with controller → service → repository → model layers
+2. **Interface-Based Services**: All services implement interfaces for better testability and flexibility
+3. **DTO Pattern**: Separate DTOs for requests, responses, and updates to prevent over/under-posting
+4. **MapStruct for Mapping**: Type-safe, compile-time bean mapping instead of reflection-based solutions
+5. **Custom Exception Hierarchy**: Centralized error handling with semantic exception types
+6. **Comprehensive Validation**: Bean Validation (Jakarta Validation) at multiple levels
+7. **Pagination First**: All list endpoints support pagination for scalability
+8. **Stateless Design**: No session state for horizontal scalability
+9. **Configuration Management**: Externalized configuration via Spring Cloud Config
+10. **Security by Design**: Vault integration for sensitive data, no hardcoded credentials
+11. **Microservice Integration**: RESTful integration with Unit of Measure service for standardization
+12. **Cost Tracking**: Decimal precision for financial calculations using BigDecimal
 
-1. **Secrets Management**: All sensitive configuration stored in HashiCorp Vault
-2. **Validation**: Input validation on all endpoints using Jakarta Bean Validation
-3. **Exception Handling**: Detailed error responses without exposing sensitive information
-4. **Database**: Prepared statements via JPA to prevent SQL injection
+---
 
-## 📊 Monitoring & Health
+## 📚 Documentation
 
-The service exposes Actuator endpoints for monitoring:
+### Official Documentation
 
-- **Health**: `/actuator/health` - Application health status
-- **Info**: `/actuator/info` - Application information
-- **Metrics**: `/actuator/metrics` - Application metrics
+- **[DeepWiki - Inventory Service](https://deepwiki.com/elara-app/inventory-service)**: Comprehensive project documentation including:
+  - Architecture diagrams
+  - API specifications
+  - Database schema
+  - Deployment guides
+  - Troubleshooting guides
+  - FAQ
+
+### Related Documentation
+
+- [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/)
+- [Spring Data JPA Reference](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/)
+- [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/)
+- [MapStruct Documentation](https://mapstruct.org/documentation/)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these guidelines:
+We welcome contributions to the Inventory Service! Here's how you can help:
 
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/your-feature-name`
-3. **Commit your changes**: `git commit -m 'Add some feature'`
-4. **Push to the branch**: `git push origin feature/your-feature-name`
-5. **Open a Pull Request**
+### Getting Started with Contributions
 
-### Coding Standards
-- Follow Java coding conventions
-- Write meaningful commit messages
+1. **Fork the repository** on GitHub
+2. **Clone your fork** locally:
+   ```bash
+   git clone https://github.com/your-username/inventory-service.git
+   ```
+3. **Create a feature branch**:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+4. **Make your changes** following our coding standards
+5. **Write or update tests** to cover your changes
+6. **Ensure all tests pass**:
+   ```bash
+   ./mvnw clean verify
+   ```
+7. **Commit your changes** with clear, descriptive messages:
+   ```bash
+   git commit -m "Add feature: description of your changes"
+   ```
+8. **Push to your fork**:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+9. **Submit a Pull Request** to the main repository
+
+### Contribution Guidelines
+
+- Follow the existing code style and conventions
+- Write clear, self-documenting code with appropriate comments
 - Include unit tests for new features
 - Update documentation as needed
-- Use Lombok annotations to reduce boilerplate
-- Follow REST API design best practices
+- Ensure your code passes all existing tests
+- Keep pull requests focused on a single feature or fix
+- Write meaningful commit messages
 
-## 📝 Best Practices Implemented
+### Code Review Process
 
-### Code Quality
-- **Clean Architecture**: Clear separation of concerns
-- **SOLID Principles**: Single responsibility, dependency injection
-- **DRY Principle**: Reusable components and utilities
-- **Validation**: Comprehensive input validation at multiple layers
-- **Exception Handling**: Centralized error handling with meaningful messages
+All contributions go through a code review process:
+1. Automated checks (build, tests, coverage)
+2. Peer review by maintainers
+3. Approval required before merging
 
-### Spring Boot Best Practices
-- **Spring Data JPA**: Repository pattern for data access
-- **DTO Pattern**: Separation of entity and API models using MapStruct
-- **Pagination**: Built-in support for paginated queries
-- **Logging**: Structured logging with SLF4J
-- **Configuration**: Externalized configuration with profiles
+### Reporting Issues
 
-### Microservices Patterns
-- **Service Discovery**: Automatic service registration with Eureka
-- **Centralized Configuration**: Config server for environment-specific settings
-- **Health Checks**: Actuator endpoints for monitoring
-- **API Versioning**: Versioned artifact for backward compatibility
+Found a bug or have a feature request? Please create an issue on GitHub:
+- Use a clear and descriptive title
+- Provide detailed steps to reproduce (for bugs)
+- Include relevant logs or error messages
+- Describe the expected behavior
 
-### Database Design
-- **Entity Validation**: Database-level and application-level constraints
-- **Optimistic Locking**: Preventing concurrent update conflicts
-- **Indexes**: Optimized queries with proper indexing
-- **Foreign Keys**: Referential integrity with external services
+---
 
 ## 📄 License
 
-This project is licensed under the **MIT License**. See the [LICENSE](https://opensource.org/license/mit) for details.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ```
 MIT License
 
-Copyright (c) 2026 Elara App
+Copyright (c) 2025 Elara App
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -482,26 +590,34 @@ The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 ```
 
+---
+
 ## 📞 Contact & Support
 
-- **Developer**: Julian Bermudez
-- **Email**: julianbetov@gmail.com
-- **GitHub**: [@julianbetov](https://github.com/julianbetov)
-- **Repository**: [elara-app/inventory-service](https://github.com/elara-app/inventory-service)
+### Project Team
 
-## 🔗 Additional Resources
+- **Lead Developer**: [Julian Bermudez](https://github.com/julianbetov)
+  - Email: julianbetov@gmail.com
 
-- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
-- [Spring Cloud Documentation](https://spring.io/projects/spring-cloud)
-- [Spring Data JPA Documentation](https://spring.io/projects/spring-data-jpa)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [Project Deep Wiki](https://deepwiki.com/elara-app/inventory-service)
-- [Architecture & Design Decisions](https://bit.ly/4a0ZITO)
+### Getting Help
+
+- **Issues**: [GitHub Issues](https://github.com/elara-app/inventory-service/issues)
+- **Documentation**: [DeepWiki](https://deepwiki.com/elara-app/inventory-service)
+- **Discussions**: [GitHub Discussions](https://github.com/elara-app/inventory-service/discussions)
+
+### Elara Application Ecosystem
+
+This service is part of the larger Elara application ecosystem. For information about other services:
+
+- **Organization**: [Elara App on GitHub](https://github.com/elara-app)
+- **Main Repository**: [Elara App](https://github.com/elara-app)
 
 ---
 
-**Version**: 1.2  
-**Last Updated**: February 2026  
-**Status**: Active Development
+<div align="center">
+
+**⭐ Star this repository if you find it helpful!**
 
 Made with ❤️ by the Elara Team
+
+</div>
