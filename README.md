@@ -85,7 +85,8 @@ This service follows **Clean Architecture** principles with clear separation of 
 - **Spring Cloud Bus**: Configuration change propagation (RabbitMQ)
 
 ### Database
-- **PostgreSQL**: 42.7.7 (Production database)
+- **PostgreSQL**: 12+ (Production database)
+- **PostgreSQL JDBC Driver**: 42.7.7
 - **JPA/Hibernate**: ORM layer
 
 ### Development Tools
