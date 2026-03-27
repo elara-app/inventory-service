@@ -1,0 +1,7 @@
+{
+  "code": 1003,
+  "value": "RESOURCE_CONFLICT",
+  "message": "An Inventory Item with name 'Steel Bolt M10' already exists",
+  "timestamp": "2025-08-06T10:30:15",
+  "path": "/item"
+}
