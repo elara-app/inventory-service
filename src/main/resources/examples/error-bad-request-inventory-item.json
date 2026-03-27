@@ -1,0 +1,7 @@
+{
+  "code": 1002,
+  "value": "INVALID_DATA",
+  "message": "Validation failed: standardCost must be greater than 0",
+  "timestamp": "2025-08-06T10:30:15",
+  "path": "/item"
+}
