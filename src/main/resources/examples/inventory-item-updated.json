@@ -1,0 +1,9 @@
+{
+  "id": 1,
+  "name": "Steel Bolt M12",
+  "description": "High-strength steel bolt, metric M12 x 50mm",
+  "baseUnitOfMeasureId": 1,
+  "standardCost": 3.00,
+  "unitPerPurchaseUom": 100.00,
+  "reorderPointQuantity": 400.00
+}

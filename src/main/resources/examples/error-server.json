@@ -1,0 +1,7 @@
+{
+  "code": 1006,
+  "value": "UNEXPECTED_ERROR",
+  "message": "An unexpected error occurred while processing your request. Please contact support if the problem persists",
+  "timestamp": "2025-08-06T10:30:15",
+  "path": "/item"
+}
