@@ -1,0 +1,7 @@
+{
+  "code": 1004,
+  "value": "RESOURCE_NOT_FOUND",
+  "message": "InventoryItem with id 999 not found",
+  "timestamp": "2025-08-06T10:30:15",
+  "path": "/item/999"
+}
