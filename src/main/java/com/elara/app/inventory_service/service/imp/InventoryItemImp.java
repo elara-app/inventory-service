@@ -42,7 +42,7 @@ public class InventoryItemImp implements InventoryItemService {
             String saveErrorMsg = messageService.getMessage("crud.save.error", ENTITY_NAME);
             log.warn("[{}] {}", methodNomenclature, saveErrorMsg);
             log.warn("[{}] {}", methodNomenclature, alreadyExistsMsg);
-            throw new ResourceConflictException("name", request.name());
+            throw new ResourceConflictException(alreadyExistsMsg);
         }
         uomServiceClientImp.verifyUomById(request.baseUnitOfMeasureId());
         InventoryItem entity = mapper.toEntity(request);
@@ -62,12 +62,12 @@ public class InventoryItemImp implements InventoryItemService {
                 .orElseThrow(() -> {
                     String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
                     log.warn("[{}] {}", methodNomenclature, msg);
-                    return new ResourceNotFoundException(ENTITY_NAME, "id", id.toString());
+                    return new ResourceNotFoundException(msg);
                 });
             if (!existing.getName().equals(update.name()) && Boolean.TRUE.equals(isNameTaken(update.name()))) {
                 String msg = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", update.name());
                 log.warn("[{}] {}", methodNomenclature, msg);
-                throw new ResourceConflictException("name", update.name());
+                throw new ResourceConflictException(msg);
             }
             uomServiceClientImp.verifyUomById(update.baseUnitOfMeasureId());
             log.info("[{}] Mapping update DTO to entity. Before: {}", methodNomenclature, existing);
@@ -92,7 +92,7 @@ public class InventoryItemImp implements InventoryItemService {
             String deleteErrorMsg = messageService.getMessage("crud.delete.error", ENTITY_NAME);
             log.warn("[{}] {}", methodNomenclature, notFoundMsg);
             log.warn("[{}] {}", methodNomenclature, deleteErrorMsg);
-            throw new ResourceNotFoundException(ENTITY_NAME, "id", id.toString());
+            throw new ResourceNotFoundException(notFoundMsg);
         }
         repository.deleteById(id);
         String msg = messageService.getMessage("crud.delete.success", ENTITY_NAME);
@@ -107,7 +107,7 @@ public class InventoryItemImp implements InventoryItemService {
         if (response.isEmpty()) {
             String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
             log.warn("[{}] {}", methodNomenclature, msg);
-            throw new ResourceNotFoundException(ENTITY_NAME, "id", id.toString());
+            throw new ResourceNotFoundException(msg);
         }
         String msg = messageService.getMessage("crud.read.success", ENTITY_NAME);
         log.info("[{}] {}", methodNomenclature, msg);
