@@ -138,7 +138,7 @@ public class InventoryItemController {
     })
     public ResponseEntity<Page<InventoryItemResponse>> getAll(
         @Parameter(description = "Pagination parameters", hidden = true)
-        @PageableDefault(size = 20, sort = "name") Pageable pageable
+        @PageableDefault(size = 20) Pageable pageable
     ) {
         final String methodNomenclature = NOMENCLATURE + "-getAll";
         log.info("[{}] Request to get all InventoryItems.", methodNomenclature);
@@ -168,7 +168,7 @@ public class InventoryItemController {
         @Parameter(description = "Name search term (case-insensitive partial match)", required = true, example = "bolt")
         @RequestParam @NotBlank String name,
         @Parameter(description = "Pagination parameters", hidden = true)
-        @PageableDefault(size = 20, sort = "name") Pageable pageable
+        @PageableDefault(size = 20) Pageable pageable
     ) {
         final String methodNomenclature = NOMENCLATURE + "-getAllByName";
         log.info("[{}] Request to search InventoryItems by name: {}", methodNomenclature, name);
