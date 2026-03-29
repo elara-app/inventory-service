@@ -67,18 +67,16 @@ public class InventoryItemImp implements InventoryItemService {
     @Override
     @Transactional
     public void deleteById(Long id) {
-        String methodNomenclature = NOMENCLATURE + "-deleteById";
-        log.info("[{}] Attempting to delete {} with id: {}", methodNomenclature, ENTITY_NAME, id);
-        if (!repository.existsById(id)) {
-            String notFoundMsg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id);
-            String deleteErrorMsg = messageService.getMessage("crud.delete.error", ENTITY_NAME);
-            log.warn("[{}] {}", methodNomenclature, notFoundMsg);
-            log.warn("[{}] {}", methodNomenclature, deleteErrorMsg);
-            throw new ResourceNotFoundException(notFoundMsg);
+        final String methodNomenclature = NOMENCLATURE + "-deleteById";
+        log.info("[{}] Deleting {} with id: {}", methodNomenclature, ENTITY_NAME, id);
+
+        int deletedCount = repository.deleteByIdReturningCount(id);
+        if (deletedCount == 0) {
+            String message = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
+            throw new ResourceNotFoundException(message);
         }
-        repository.deleteById(id);
-        String msg = messageService.getMessage("crud.delete.success", ENTITY_NAME);
-        log.info("[{}] {}", methodNomenclature, msg);
+
+        log.info("[{}] {} deleted successfully with id: {}", methodNomenclature, ENTITY_NAME, id);
     }
 
     @Override
