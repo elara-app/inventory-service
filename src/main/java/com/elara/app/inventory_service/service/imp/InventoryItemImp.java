@@ -9,6 +9,7 @@ import com.elara.app.inventory_service.mapper.InventoryItemMapper;
 import com.elara.app.inventory_service.model.InventoryItem;
 import com.elara.app.inventory_service.repository.InventoryItemRepository;
 import com.elara.app.inventory_service.service.interfaces.InventoryItemService;
+import com.elara.app.inventory_service.service.interfaces.UomServiceClient;
 import com.elara.app.inventory_service.utils.MessageService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class InventoryItemImp implements InventoryItemService {
     private final InventoryItemMapper mapper;
     private final InventoryItemRepository repository;
     private final MessageService messageService;
-    private final UomServiceClientImp uomServiceClientImp;
+    private final UomServiceClient uomServiceClient;
 
     @Override
     @Transactional
@@ -44,7 +45,7 @@ public class InventoryItemImp implements InventoryItemService {
             log.warn("[{}] {}", methodNomenclature, alreadyExistsMsg);
             throw new ResourceConflictException(alreadyExistsMsg);
         }
-        uomServiceClientImp.verifyUomById(request.baseUnitOfMeasureId());
+        uomServiceClient.verifyUomById(request.baseUnitOfMeasureId());
         InventoryItem entity = mapper.toEntity(request);
         log.info("[{}] Mapped DTO to entity: {}", methodNomenclature, entity);
         InventoryItem saved = repository.save(entity);
@@ -69,7 +70,7 @@ public class InventoryItemImp implements InventoryItemService {
                 log.warn("[{}] {}", methodNomenclature, msg);
                 throw new ResourceConflictException(msg);
             }
-            uomServiceClientImp.verifyUomById(update.baseUnitOfMeasureId());
+            uomServiceClient.verifyUomById(update.baseUnitOfMeasureId());
             log.info("[{}] Mapping update DTO to entity. Before: {}", methodNomenclature, existing);
             mapper.updateEntityFromDto(existing, update);
             String msg = messageService.getMessage("crud.update.success", ENTITY_NAME);
