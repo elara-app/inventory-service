@@ -8,6 +8,7 @@ import com.elara.app.inventory_service.exceptions.ResourceNotFoundException;
 import com.elara.app.inventory_service.mapper.InventoryItemMapper;
 import com.elara.app.inventory_service.model.InventoryItem;
 import com.elara.app.inventory_service.repository.InventoryItemRepository;
+import com.elara.app.inventory_service.service.interfaces.UomServiceClient;
 import com.elara.app.inventory_service.utils.MessageService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,14 +48,14 @@ class InventoryItemImpTest {
     private MessageService messageService;
 
     @Mock
-    private UomServiceClientImp uomServiceClientImp;
+    private UomServiceClient uomServiceClient;
 
     @InjectMocks
     private InventoryItemImp service;
 
     @AfterEach
     void tearDown() {
-        reset(mapper, repository, messageService, uomServiceClientImp);
+        reset(mapper, repository, messageService, uomServiceClient);
     }
 
     // ========================================
@@ -124,7 +125,7 @@ class InventoryItemImpTest {
             InventoryItemResponse expectedResponse = createStandardResponse();
 
             when(repository.existsByNameIgnoreCase(request.name())).thenReturn(false);
-            doNothing().when(uomServiceClientImp).verifyUomById(request.baseUnitOfMeasureId());
+            doNothing().when(uomServiceClient).verifyUomById(request.baseUnitOfMeasureId());
             when(mapper.toEntity(request)).thenReturn(entity);
             when(repository.save(entity)).thenReturn(entity);
             when(mapper.toResponse(entity)).thenReturn(expectedResponse);
@@ -140,7 +141,7 @@ class InventoryItemImpTest {
             assertThat(result.standardCost()).isEqualByComparingTo(new BigDecimal("2.50"));
 
             verify(repository).existsByNameIgnoreCase(request.name());
-            verify(uomServiceClientImp).verifyUomById(request.baseUnitOfMeasureId());
+            verify(uomServiceClient).verifyUomById(request.baseUnitOfMeasureId());
             verify(mapper).toEntity(request);
             verify(repository).save(entity);
             verify(mapper).toResponse(entity);
@@ -164,7 +165,7 @@ class InventoryItemImpTest {
                 .hasMessage(errorMessage);
 
             verify(repository).existsByNameIgnoreCase(request.name());
-            verify(uomServiceClientImp, never()).verifyUomById(anyLong());
+            verify(uomServiceClient, never()).verifyUomById(anyLong());
             verify(mapper, never()).toEntity(any());
             verify(repository, never()).save(any());
         }
@@ -178,7 +179,7 @@ class InventoryItemImpTest {
 
             when(repository.existsByNameIgnoreCase(request.name())).thenReturn(false);
             doThrow(new ResourceNotFoundException(errorMessage))
-                .when(uomServiceClientImp).verifyUomById(request.baseUnitOfMeasureId());
+                .when(uomServiceClient).verifyUomById(request.baseUnitOfMeasureId());
 
             // When & Then
             assertThatThrownBy(() -> service.save(request))
@@ -186,7 +187,7 @@ class InventoryItemImpTest {
                 .hasMessage(errorMessage);
 
             verify(repository).existsByNameIgnoreCase(request.name());
-            verify(uomServiceClientImp).verifyUomById(request.baseUnitOfMeasureId());
+            verify(uomServiceClient).verifyUomById(request.baseUnitOfMeasureId());
             verify(mapper, never()).toEntity(any());
             verify(repository, never()).save(any());
         }
@@ -199,7 +200,7 @@ class InventoryItemImpTest {
                 .isInstanceOf(NullPointerException.class);
 
             verify(repository, never()).existsByNameIgnoreCase(anyString());
-            verify(uomServiceClientImp, never()).verifyUomById(anyLong());
+            verify(uomServiceClient, never()).verifyUomById(anyLong());
             verify(repository, never()).save(any());
         }
     }
@@ -231,7 +232,7 @@ class InventoryItemImpTest {
 
             when(repository.findById(id)).thenReturn(Optional.of(existingEntity));
             when(repository.existsByNameIgnoreCase(update.name())).thenReturn(false);
-            doNothing().when(uomServiceClientImp).verifyUomById(update.baseUnitOfMeasureId());
+            doNothing().when(uomServiceClient).verifyUomById(update.baseUnitOfMeasureId());
             doNothing().when(mapper).updateEntityFromDto(existingEntity, update);
             when(mapper.toResponse(existingEntity)).thenReturn(expectedResponse);
             when(messageService.getMessage(anyString(), anyString())).thenReturn("Update success");
@@ -247,7 +248,7 @@ class InventoryItemImpTest {
 
             verify(repository).findById(id);
             verify(repository).existsByNameIgnoreCase(update.name());
-            verify(uomServiceClientImp).verifyUomById(update.baseUnitOfMeasureId());
+            verify(uomServiceClient).verifyUomById(update.baseUnitOfMeasureId());
             verify(mapper).updateEntityFromDto(existingEntity, update);
             verify(mapper).toResponse(existingEntity);
         }
@@ -277,7 +278,7 @@ class InventoryItemImpTest {
             );
 
             when(repository.findById(id)).thenReturn(Optional.of(existingEntity));
-            doNothing().when(uomServiceClientImp).verifyUomById(update.baseUnitOfMeasureId());
+            doNothing().when(uomServiceClient).verifyUomById(update.baseUnitOfMeasureId());
             doNothing().when(mapper).updateEntityFromDto(existingEntity, update);
             when(mapper.toResponse(existingEntity)).thenReturn(expectedResponse);
             when(messageService.getMessage(anyString(), anyString())).thenReturn("Update success");
@@ -291,7 +292,7 @@ class InventoryItemImpTest {
 
             verify(repository).findById(id);
             verify(repository, never()).existsByNameIgnoreCase(anyString());
-            verify(uomServiceClientImp).verifyUomById(update.baseUnitOfMeasureId());
+            verify(uomServiceClient).verifyUomById(update.baseUnitOfMeasureId());
             verify(mapper).updateEntityFromDto(existingEntity, update);
         }
 
@@ -315,7 +316,7 @@ class InventoryItemImpTest {
 
             verify(repository).findById(id);
             verify(repository, never()).existsByNameIgnoreCase(anyString());
-            verify(uomServiceClientImp, never()).verifyUomById(anyLong());
+            verify(uomServiceClient, never()).verifyUomById(anyLong());
             verify(mapper, never()).updateEntityFromDto(any(), any());
         }
 
@@ -341,7 +342,7 @@ class InventoryItemImpTest {
 
             verify(repository).findById(id);
             verify(repository).existsByNameIgnoreCase(update.name());
-            verify(uomServiceClientImp, never()).verifyUomById(anyLong());
+            verify(uomServiceClient, never()).verifyUomById(anyLong());
             verify(mapper, never()).updateEntityFromDto(any(), any());
         }
 
@@ -357,7 +358,7 @@ class InventoryItemImpTest {
             when(repository.findById(id)).thenReturn(Optional.of(existingEntity));
             when(repository.existsByNameIgnoreCase(update.name())).thenReturn(false);
             doThrow(new ResourceNotFoundException(errorMessage))
-                .when(uomServiceClientImp).verifyUomById(update.baseUnitOfMeasureId());
+                .when(uomServiceClient).verifyUomById(update.baseUnitOfMeasureId());
             when(messageService.getMessage(anyString(), anyString())).thenReturn("Update error");
 
             // When & Then
@@ -367,7 +368,7 @@ class InventoryItemImpTest {
 
             verify(repository).findById(id);
             verify(repository).existsByNameIgnoreCase(update.name());
-            verify(uomServiceClientImp).verifyUomById(update.baseUnitOfMeasureId());
+            verify(uomServiceClient).verifyUomById(update.baseUnitOfMeasureId());
             verify(mapper, never()).updateEntityFromDto(any(), any());
         }
     }
@@ -385,17 +386,13 @@ class InventoryItemImpTest {
         void deleteById_withExistingId_deletesSuccessfully() {
             // Given
             Long id = 1L;
-
-            when(repository.existsById(id)).thenReturn(true);
-            doNothing().when(repository).deleteById(id);
-            when(messageService.getMessage(anyString(), anyString())).thenReturn("Delete success");
+            when(repository.deleteByIdReturningCount(id)).thenReturn(1);
 
             // When
             service.deleteById(id);
 
             // Then
-            verify(repository).existsById(id);
-            verify(repository).deleteById(id);
+            verify(repository).deleteByIdReturningCount(id);
         }
 
         @Test
@@ -405,18 +402,16 @@ class InventoryItemImpTest {
             Long id = 999L;
             String errorMessage = "InventoryItem with id '999' not found";
 
-            when(repository.existsById(id)).thenReturn(false);
-            when(messageService.getMessage(anyString(), anyString(), anyString(), anyLong()))
+            when(repository.deleteByIdReturningCount(id)).thenReturn(0);
+            when(messageService.getMessage(anyString(), anyString(), anyString(), anyString()))
                 .thenReturn(errorMessage);
-            when(messageService.getMessage(anyString(), anyString())).thenReturn("Delete error");
 
             // When & Then
             assertThatThrownBy(() -> service.deleteById(id))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage(errorMessage);
 
-            verify(repository).existsById(id);
-            verify(repository, never()).deleteById(anyLong());
+            verify(repository).deleteByIdReturningCount(id);
         }
     }
 
@@ -653,66 +648,6 @@ class InventoryItemImpTest {
 
             verify(repository).findAllByNameContainingIgnoreCase(searchName, pageable);
             verify(mapper).toResponse(entity);
-        }
-    }
-
-    // ========================================
-    // IS NAME TAKEN TESTS
-    // ========================================
-
-    @Nested
-    @DisplayName("Is Name Taken Operation Tests")
-    class IsNameTakenTests {
-
-        @Test
-        @DisplayName("isNameTaken_withExistingName_returnsTrue")
-        void isNameTaken_withExistingName_returnsTrue() {
-            // Given
-            String name = "Steel Bolt M10";
-
-            when(repository.existsByNameIgnoreCase(name)).thenReturn(true);
-
-            // When
-            Boolean result = service.isNameTaken(name);
-
-            // Then
-            assertThat(result).isTrue();
-
-            verify(repository).existsByNameIgnoreCase(name);
-        }
-
-        @Test
-        @DisplayName("isNameTaken_withNonExistentName_returnsFalse")
-        void isNameTaken_withNonExistentName_returnsFalse() {
-            // Given
-            String name = "Nonexistent Item";
-
-            when(repository.existsByNameIgnoreCase(name)).thenReturn(false);
-
-            // When
-            Boolean result = service.isNameTaken(name);
-
-            // Then
-            assertThat(result).isFalse();
-
-            verify(repository).existsByNameIgnoreCase(name);
-        }
-
-        @Test
-        @DisplayName("isNameTaken_caseInsensitive_returnsTrue")
-        void isNameTaken_caseInsensitive_returnsTrue() {
-            // Given
-            String name = "STEEL BOLT M10";
-
-            when(repository.existsByNameIgnoreCase(name)).thenReturn(true);
-
-            // When
-            Boolean result = service.isNameTaken(name);
-
-            // Then
-            assertThat(result).isTrue();
-
-            verify(repository).existsByNameIgnoreCase(name);
         }
     }
 }

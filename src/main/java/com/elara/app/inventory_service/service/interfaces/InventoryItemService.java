@@ -20,6 +20,4 @@ public interface InventoryItemService {
 
     Page<InventoryItemResponse> findAllByName(String name, Pageable pageable);
 
-    Boolean isNameTaken(String name);
-
 }

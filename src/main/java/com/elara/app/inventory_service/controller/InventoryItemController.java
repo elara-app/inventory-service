@@ -177,33 +177,6 @@ public class InventoryItemController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("check-name")
-    @Operation(summary = "Check if name is taken", description = """
-            Checks whether an Inventory Item with the given name already exists.
-            Useful for client-side validation before creating or updating items.
-            
-            **Returns:** `true` if name is taken, `false` if available""")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Success - Returns boolean result",
-            content = @Content(schema = @Schema(implementation = Boolean.class))),
-        @ApiResponse(responseCode = "400", description = "Bad Request - Name parameter is blank",
-            content = @Content(schema = @Schema(ref = "#/components/schemas/ErrorResponse"),
-                examples = @ExampleObject(name = "Bad Request", ref = "#/components/examples/ErrorBadRequest"))),
-        @ApiResponse(responseCode = "500", description = "Internal Server Error",
-            content = @Content(schema = @Schema(ref = "#/components/schemas/ErrorResponse"),
-                examples = @ExampleObject(name = "Server Error", ref = "#/components/examples/ErrorServer")))
-    })
-    public ResponseEntity<Boolean> isNameTaken(
-        @Parameter(description = "Name to check for uniqueness", required = true, example = "Steel Bolt M10")
-        @RequestParam @NotBlank String name
-    ) {
-        final String methodNomenclature = NOMENCLATURE + "-isNameTaken";
-        log.info("[{}] Request to check if name is taken: {}", methodNomenclature, name);
-        Boolean isTaken = service.isNameTaken(name);
-        log.info("[{}] Name: {}", methodNomenclature, isTaken);
-        return ResponseEntity.ok(isTaken);
-    }
-
     // ========================================
     // UPDATE OPERATIONS
     // ========================================
