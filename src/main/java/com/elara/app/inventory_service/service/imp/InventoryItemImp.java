@@ -140,4 +140,30 @@ public class InventoryItemImp implements InventoryItemService {
         log.debug("[{}] Name '{}' taken: {}", methodNomenclature, name, exists);
         return exists;
     }
+
+    // ========================================
+    // PRIVATE HELPERS
+    // ========================================
+
+    private InventoryItem findEntityById(Long id) {
+        return repository.findById(id)
+            .orElseThrow(() -> {
+                String message = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
+                return new ResourceNotFoundException(message);
+            });
+    }
+
+    private void validateNameUniqueness(String name) {
+        if (isNameTaken(name)) {
+            String message = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", name);
+            throw new ResourceConflictException(message);
+        }
+    }
+
+    private void validateNameUniquenessForUpdate(String currentName, String newName) {
+        if (!currentName.equals(newName) && isNameTaken(newName)) {
+            String message = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", newName);
+            throw new ResourceConflictException(message);
+        }
+    }
 }
