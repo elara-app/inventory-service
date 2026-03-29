@@ -11,14 +11,12 @@ import com.elara.app.inventory_service.repository.InventoryItemRepository;
 import com.elara.app.inventory_service.service.interfaces.InventoryItemService;
 import com.elara.app.inventory_service.service.interfaces.UomServiceClient;
 import com.elara.app.inventory_service.utils.MessageService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -80,44 +78,36 @@ public class InventoryItemImp implements InventoryItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public InventoryItemResponse findById(Long id) {
-        String methodNomenclature = NOMENCLATURE + "-findById";
-        log.info("[{}] Searching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
-        Optional<InventoryItem> response = repository.findById(id);
-        if (response.isEmpty()) {
-            String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
-            log.warn("[{}] {}", methodNomenclature, msg);
-            throw new ResourceNotFoundException(msg);
-        }
-        String msg = messageService.getMessage("crud.read.success", ENTITY_NAME);
-        log.info("[{}] {}", methodNomenclature, msg);
-        return mapper.toResponse(response.get());
+        final String methodNomenclature = NOMENCLATURE + "-findById";
+        log.debug("[{}] Fetching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
+
+        InventoryItem entity = findEntityById(id);
+
+        return mapper.toResponse(entity);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<InventoryItemResponse> findAll(Pageable pageable) {
-        String methodNomenclature = NOMENCLATURE + "-findAll";
-        log.info("[{}] Fetching all {} entities", methodNomenclature, ENTITY_NAME);
-        Page<InventoryItemResponse> page = repository.findAll(pageable).map(mapper::toResponse);
-        log.info("[{}] Fetched {} entities, page size: {}", methodNomenclature, ENTITY_NAME, page.getNumberOfElements());
-        return page;
+        final String methodNomenclature = NOMENCLATURE + "-findAll";
+        log.debug("[{}] Fetching all {} entities", methodNomenclature, ENTITY_NAME);
+
+        return repository.findAll(pageable).map(mapper::toResponse);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<InventoryItemResponse> findAllByName(String name, Pageable pageable) {
-        String methodNomenclature = NOMENCLATURE + "-findAllByName";
-        log.info("[{}] Fetching all {} entities with name containing: '{}'", methodNomenclature, ENTITY_NAME, name);
-        Page<InventoryItemResponse> page = repository.findAllByNameContainingIgnoreCase(name, pageable).map(mapper::toResponse);
-        log.info("[{}] Fetched {} entities with name like '{}', page size: {}", methodNomenclature, ENTITY_NAME, name, page.getNumberOfElements());
-        return page;
+        final String methodNomenclature = NOMENCLATURE + "-findAllByName";
+        log.debug("[{}] Fetching {} entities with name containing: '{}'", methodNomenclature, ENTITY_NAME, name);
+
+        return repository.findAllByNameContainingIgnoreCase(name, pageable).map(mapper::toResponse);
     }
 
     private boolean isNameTaken(String name) {
-        String methodNomenclature = NOMENCLATURE + "-isNameTaken";
-        log.debug("[{}] Checking if name '{}' is taken for {}", methodNomenclature, name, ENTITY_NAME);
-        boolean exists = repository.existsByNameIgnoreCase(name);
-        log.debug("[{}] Name '{}' taken: {}", methodNomenclature, name, exists);
-        return exists;
+        return repository.existsByNameIgnoreCase(name);
     }
 
     // ========================================
