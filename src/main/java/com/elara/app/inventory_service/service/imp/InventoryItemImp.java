@@ -18,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -37,19 +36,15 @@ public class InventoryItemImp implements InventoryItemService {
     @Transactional
     public InventoryItemResponse save(InventoryItemRequest request) {
         final String methodNomenclature = NOMENCLATURE + "-save";
-        log.info("[{}] Attempting to create {} with name: {} and request: {}", methodNomenclature, ENTITY_NAME, request != null ? request.name() : null, request);
-        if (Boolean.TRUE.equals(isNameTaken(Objects.requireNonNull(request).name()))) {
-            String alreadyExistsMsg = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", request.name());
-            String saveErrorMsg = messageService.getMessage("crud.save.error", ENTITY_NAME);
-            log.warn("[{}] {}", methodNomenclature, saveErrorMsg);
-            log.warn("[{}] {}", methodNomenclature, alreadyExistsMsg);
-            throw new ResourceConflictException(alreadyExistsMsg);
-        }
+        log.info("[{}] Creating {} with name: '{}'", methodNomenclature, ENTITY_NAME, request.name());
+
+        validateNameUniqueness(request.name());
         uomServiceClient.verifyUomById(request.baseUnitOfMeasureId());
+
         InventoryItem entity = mapper.toEntity(request);
-        log.info("[{}] Mapped DTO to entity: {}", methodNomenclature, entity);
         InventoryItem saved = repository.save(entity);
-        log.info("[{}] {}", methodNomenclature, messageService.getMessage("crud.create.success", ENTITY_NAME));
+
+        log.info("[{}] {} created successfully with id: {}", methodNomenclature, ENTITY_NAME, saved.getId());
         return mapper.toResponse(saved);
     }
 
