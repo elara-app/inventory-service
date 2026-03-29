@@ -133,12 +133,11 @@ public class InventoryItemImp implements InventoryItemService {
         return page;
     }
 
-    @Override
-    public Boolean isNameTaken(String name) {
+    private boolean isNameTaken(String name) {
         String methodNomenclature = NOMENCLATURE + "-isNameTaken";
-        log.info("[{}] checking if name '{}' is taken for {}", methodNomenclature, name, ENTITY_NAME);
-        Boolean exists = repository.existsByNameIgnoreCase(name);
-        log.info("[{}] Name '{}' taken: {}", methodNomenclature, name, exists);
+        log.debug("[{}] Checking if name '{}' is taken for {}", methodNomenclature, name, ENTITY_NAME);
+        boolean exists = repository.existsByNameIgnoreCase(name);
+        log.debug("[{}] Name '{}' taken: {}", methodNomenclature, name, exists);
         return exists;
     }
 }
