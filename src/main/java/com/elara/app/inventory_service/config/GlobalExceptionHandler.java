@@ -4,15 +4,20 @@ import com.elara.app.inventory_service.exceptions.BaseException;
 import com.elara.app.inventory_service.utils.ErrorCode;
 import com.elara.app.inventory_service.utils.MessageService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -21,6 +26,7 @@ import java.util.regex.Pattern;
 
 @ControllerAdvice
 @RequiredArgsConstructor
+@Slf4j
 public class GlobalExceptionHandler {
 
     private final MessageService messageService;
@@ -45,6 +51,42 @@ public class GlobalExceptionHandler {
             request.getRequestURI()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception, HttpServletRequest request) {
+        assert exception.getRequiredType() != null;
+        String message = messageService.getMessage("type.mismatch", exception.getName(), exception.getRequiredType().getSimpleName(), exception.getValue());
+        log.info("GlobalExceptionHandler: {}", message);
+        ErrorResponse errorResponse = createErrorResponse(
+            ErrorCode.INVALID_DATA.getCode(),
+            ErrorCode.INVALID_DATA.getValue(),
+            message,
+            request.getRequestURI()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException exception, HttpServletRequest request) {
+        ErrorResponse errorResponse = createErrorResponse(
+                ErrorCode.INVALID_DATA.getCode(),
+                ErrorCode.INVALID_DATA.getValue(),
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException exception, HttpServletRequest request) {
+        ErrorResponse errorResponse = createErrorResponse(
+            ErrorCode.INVALID_DATA.getCode(),
+            ErrorCode.INVALID_DATA.getValue(),
+            messageService.getMessage("media.type.not.supported", exception.getContentType(), MediaType.APPLICATION_JSON_VALUE),
+            request.getRequestURI()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

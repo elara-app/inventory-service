@@ -50,6 +50,8 @@
 	<!-- - - - - - - - - - - - - -->
 	<properties>
 		<java.version>21</java.version>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
 		<lombok.version>1.18.38</lombok.version>
         <postgresql.version>42.7.7</postgresql.version>
 		<h2.version>2.3.232</h2.version>
@@ -57,6 +59,16 @@
 		<mapstruct.processor.version>1.6.3</mapstruct.processor.version>
 		<springdoc.openapi.version>2.8.0</springdoc.openapi.version>
 		<spring-cloud.version>2025.0.0</spring-cloud.version>
+		<jacoco.version>0.8.14</jacoco.version>
+		<!-- + + + + -->
+		<sonar.scanner.version>5.1.0.4751</sonar.scanner.version>
+		<sonar.language>java</sonar.language>
+		<sonar.projectKey>com.elara.app:inventory-service</sonar.projectKey>
+		<sonar.host.url>http://localhost:9000</sonar.host.url>
+		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<sonar.exclusions>
+			**/InventoryServiceApplication.java
+		</sonar.exclusions>
 	</properties>
 
 	<!--
@@ -137,12 +149,12 @@
 			<version>${postgresql.version}</version>
 			<scope>runtime</scope>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>com.h2database</groupId>-->
-<!--			<artifactId>h2</artifactId>-->
-<!--			<version>${h2.version}</version>-->
-<!--			<scope>runtime</scope>-->
-<!--		</dependency>-->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>${h2.version}</version>
+			<scope>runtime</scope>
+		</dependency>
 
 		<!-- Test dependencies -->
 		<dependency>
@@ -163,6 +175,120 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<!-- + + + + -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+						<path>
+							<groupId>org.mapstruct</groupId>
+							<artifactId>mapstruct-processor</artifactId>
+							<version>${mapstruct.processor.version}</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+			<!-- + + + + -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>check</id>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.80</minimum>
+										</limit>
+										<limit>
+											<counter>BRANCH</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.70</minimum>
+										</limit>
+										<limit>
+											<counter>CLASS</counter>
+											<value>MISSEDCOUNT</value>
+											<maximum>0</maximum>
+										</limit>
+									</limits>
+								</rule>
+								<rule>
+									<element>PACKAGE</element>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.70</minimum>
+										</limit>
+									</limits>
+									<excludes>
+										<exclude>com.elara.app.inventory_service.configuration.*</exclude>
+										<exclude>com.elara.app.inventory_service.InventoryServiceApplication</exclude>
+									</excludes>
+								</rule>
+							</rules>
+							<excludes>
+								<exclude>**/InventoryServiceApplication.class</exclude>
+								<exclude>**/config/**</exclude>
+								<exclude>**/dto/**</exclude>
+							</excludes>
+						</configuration>
+					</execution>
+				</executions>
+				<configuration>
+					<dataFile>${project.build.directory}/jacoco.exec</dataFile>
+					<outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
+					<excludes>
+						<exclude>**/InventoryServiceApplication.class</exclude>
+						<exclude>**/config/**</exclude>
+						<exclude>**/dto/**</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<!-- + + + + -->
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>${sonar.scanner.version}</version>
 			</plugin>
 		</plugins>
 	</build>
