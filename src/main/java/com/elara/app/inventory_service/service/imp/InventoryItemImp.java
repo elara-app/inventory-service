@@ -52,30 +52,16 @@ public class InventoryItemImp implements InventoryItemService {
     @Transactional
     public InventoryItemResponse update(Long id, InventoryItemUpdate update) {
         final String methodNomenclature = NOMENCLATURE + "-update";
-        try {
-            log.info("[{}] Attempting to update {} with id: {} and request: {}", methodNomenclature, ENTITY_NAME, id, update);
-            InventoryItem existing = repository.findById(id)
-                .orElseThrow(() -> {
-                    String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
-                    log.warn("[{}] {}", methodNomenclature, msg);
-                    return new ResourceNotFoundException(msg);
-                });
-            if (!existing.getName().equals(update.name()) && Boolean.TRUE.equals(isNameTaken(update.name()))) {
-                String msg = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", update.name());
-                log.warn("[{}] {}", methodNomenclature, msg);
-                throw new ResourceConflictException(msg);
-            }
-            uomServiceClient.verifyUomById(update.baseUnitOfMeasureId());
-            log.info("[{}] Mapping update DTO to entity. Before: {}", methodNomenclature, existing);
-            mapper.updateEntityFromDto(existing, update);
-            String msg = messageService.getMessage("crud.update.success", ENTITY_NAME);
-            log.info("[{}] {}", methodNomenclature, msg);
-            return mapper.toResponse(existing);
-        } catch (ResourceNotFoundException | ResourceConflictException e) {
-            String updateErrorMsg = messageService.getMessage("crud.update.error", ENTITY_NAME);
-            log.warn("[{}] {}", methodNomenclature, updateErrorMsg);
-            throw e;
-        }
+        log.info("[{}] Updating {} with id: {}", methodNomenclature, ENTITY_NAME, id);
+
+        InventoryItem existing = findEntityById(id);
+        validateNameUniquenessForUpdate(existing.getName(), update.name());
+        uomServiceClient.verifyUomById(update.baseUnitOfMeasureId());
+
+        mapper.updateEntityFromDto(existing, update);
+
+        log.info("[{}] {} updated successfully with id: {}", methodNomenclature, ENTITY_NAME, id);
+        return mapper.toResponse(existing);
     }
 
     @Override
