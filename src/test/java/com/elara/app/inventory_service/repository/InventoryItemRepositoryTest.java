@@ -399,4 +399,65 @@ class InventoryItemRepositoryTest {
             assertThat(found.get().getDescription()).hasSize(200);
         }
     }
+
+    // ========================================
+    // DELETE BY ID RETURNING COUNT
+    // ========================================
+
+    @Nested
+    @DisplayName("DeleteByIdReturningCount - Optimized Delete")
+    class DeleteByIdReturningCountTests {
+
+        @Test
+        @DisplayName("deleteByIdReturningCount_withExistingId_returns1AndDeletesEntity")
+        void deleteByIdReturningCount_withExistingId_returns1AndDeletesEntity() {
+            // Given
+            InventoryItem item = createStandardItem("Item To Delete");
+            Long id = item.getId();
+            entityManager.clear();
+
+            // When
+            int deletedCount = repository.deleteByIdReturningCount(id);
+            entityManager.flush();
+
+            // Then
+            assertThat(deletedCount).isEqualTo(1);
+            assertThat(repository.findById(id)).isEmpty();
+        }
+
+        @Test
+        @DisplayName("deleteByIdReturningCount_withNonExistentId_returns0")
+        void deleteByIdReturningCount_withNonExistentId_returns0() {
+            // Given
+            Long nonExistentId = 99999L;
+
+            // When
+            int deletedCount = repository.deleteByIdReturningCount(nonExistentId);
+
+            // Then
+            assertThat(deletedCount).isZero();
+        }
+
+        @Test
+        @DisplayName("deleteByIdReturningCount_withMultipleItems_onlyDeletesTargeted")
+        void deleteByIdReturningCount_withMultipleItems_onlyDeletesTargeted() {
+            // Given
+            InventoryItem item1 = createStandardItem("Item 1");
+            InventoryItem item2 = createStandardItem("Item 2");
+            InventoryItem item3 = createStandardItem("Item 3");
+            Long idToDelete = item2.getId();
+            entityManager.clear();
+
+            // When
+            int deletedCount = repository.deleteByIdReturningCount(idToDelete);
+            entityManager.flush();
+
+            // Then
+            assertThat(deletedCount).isEqualTo(1);
+            assertThat(repository.findById(item1.getId())).isPresent();
+            assertThat(repository.findById(idToDelete)).isEmpty();
+            assertThat(repository.findById(item3.getId())).isPresent();
+            assertThat(repository.count()).isEqualTo(2);
+        }
+    }
 }

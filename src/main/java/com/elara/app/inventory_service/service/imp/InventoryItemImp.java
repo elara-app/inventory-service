@@ -9,16 +9,14 @@ import com.elara.app.inventory_service.mapper.InventoryItemMapper;
 import com.elara.app.inventory_service.model.InventoryItem;
 import com.elara.app.inventory_service.repository.InventoryItemRepository;
 import com.elara.app.inventory_service.service.interfaces.InventoryItemService;
+import com.elara.app.inventory_service.service.interfaces.UomServiceClient;
 import com.elara.app.inventory_service.utils.MessageService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.Objects;
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -30,25 +28,21 @@ public class InventoryItemImp implements InventoryItemService {
     private final InventoryItemMapper mapper;
     private final InventoryItemRepository repository;
     private final MessageService messageService;
-    private final UomServiceClientImp uomServiceClientImp;
+    private final UomServiceClient uomServiceClient;
 
     @Override
     @Transactional
     public InventoryItemResponse save(InventoryItemRequest request) {
         final String methodNomenclature = NOMENCLATURE + "-save";
-        log.info("[{}] Attempting to create {} with name: {} and request: {}", methodNomenclature, ENTITY_NAME, request != null ? request.name() : null, request);
-        if (Boolean.TRUE.equals(isNameTaken(Objects.requireNonNull(request).name()))) {
-            String alreadyExistsMsg = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", request.name());
-            String saveErrorMsg = messageService.getMessage("crud.save.error", ENTITY_NAME);
-            log.warn("[{}] {}", methodNomenclature, saveErrorMsg);
-            log.warn("[{}] {}", methodNomenclature, alreadyExistsMsg);
-            throw new ResourceConflictException(alreadyExistsMsg);
-        }
-        uomServiceClientImp.verifyUomById(request.baseUnitOfMeasureId());
+        log.info("[{}] Creating {} with name: '{}'", methodNomenclature, ENTITY_NAME, request.name());
+
+        validateNameUniqueness(request.name());
+        uomServiceClient.verifyUomById(request.baseUnitOfMeasureId());
+
         InventoryItem entity = mapper.toEntity(request);
-        log.info("[{}] Mapped DTO to entity: {}", methodNomenclature, entity);
         InventoryItem saved = repository.save(entity);
-        log.info("[{}] {}", methodNomenclature, messageService.getMessage("crud.create.success", ENTITY_NAME));
+
+        log.info("[{}] {} created successfully with id: {}", methodNomenclature, ENTITY_NAME, saved.getId());
         return mapper.toResponse(saved);
     }
 
@@ -56,88 +50,89 @@ public class InventoryItemImp implements InventoryItemService {
     @Transactional
     public InventoryItemResponse update(Long id, InventoryItemUpdate update) {
         final String methodNomenclature = NOMENCLATURE + "-update";
-        try {
-            log.info("[{}] Attempting to update {} with id: {} and request: {}", methodNomenclature, ENTITY_NAME, id, update);
-            InventoryItem existing = repository.findById(id)
-                .orElseThrow(() -> {
-                    String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
-                    log.warn("[{}] {}", methodNomenclature, msg);
-                    return new ResourceNotFoundException(msg);
-                });
-            if (!existing.getName().equals(update.name()) && Boolean.TRUE.equals(isNameTaken(update.name()))) {
-                String msg = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", update.name());
-                log.warn("[{}] {}", methodNomenclature, msg);
-                throw new ResourceConflictException(msg);
-            }
-            uomServiceClientImp.verifyUomById(update.baseUnitOfMeasureId());
-            log.info("[{}] Mapping update DTO to entity. Before: {}", methodNomenclature, existing);
-            mapper.updateEntityFromDto(existing, update);
-            String msg = messageService.getMessage("crud.update.success", ENTITY_NAME);
-            log.info("[{}] {}", methodNomenclature, msg);
-            return mapper.toResponse(existing);
-        } catch (ResourceNotFoundException | ResourceConflictException e) {
-            String updateErrorMsg = messageService.getMessage("crud.update.error", ENTITY_NAME);
-            log.warn("[{}] {}", methodNomenclature, updateErrorMsg);
-            throw e;
-        }
+        log.info("[{}] Updating {} with id: {}", methodNomenclature, ENTITY_NAME, id);
+
+        InventoryItem existing = findEntityById(id);
+        validateNameUniquenessForUpdate(existing.getName(), update.name());
+        uomServiceClient.verifyUomById(update.baseUnitOfMeasureId());
+
+        mapper.updateEntityFromDto(existing, update);
+
+        log.info("[{}] {} updated successfully with id: {}", methodNomenclature, ENTITY_NAME, id);
+        return mapper.toResponse(existing);
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
-        String methodNomenclature = NOMENCLATURE + "-deleteById";
-        log.info("[{}] Attempting to delete {} with id: {}", methodNomenclature, ENTITY_NAME, id);
-        if (!repository.existsById(id)) {
-            String notFoundMsg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id);
-            String deleteErrorMsg = messageService.getMessage("crud.delete.error", ENTITY_NAME);
-            log.warn("[{}] {}", methodNomenclature, notFoundMsg);
-            log.warn("[{}] {}", methodNomenclature, deleteErrorMsg);
-            throw new ResourceNotFoundException(notFoundMsg);
+        final String methodNomenclature = NOMENCLATURE + "-deleteById";
+        log.info("[{}] Deleting {} with id: {}", methodNomenclature, ENTITY_NAME, id);
+
+        int deletedCount = repository.deleteByIdReturningCount(id);
+        if (deletedCount == 0) {
+            String message = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
+            throw new ResourceNotFoundException(message);
         }
-        repository.deleteById(id);
-        String msg = messageService.getMessage("crud.delete.success", ENTITY_NAME);
-        log.info("[{}] {}", methodNomenclature, msg);
+
+        log.info("[{}] {} deleted successfully with id: {}", methodNomenclature, ENTITY_NAME, id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public InventoryItemResponse findById(Long id) {
-        String methodNomenclature = NOMENCLATURE + "-findById";
-        log.info("[{}] Searching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
-        Optional<InventoryItem> response = repository.findById(id);
-        if (response.isEmpty()) {
-            String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
-            log.warn("[{}] {}", methodNomenclature, msg);
-            throw new ResourceNotFoundException(msg);
-        }
-        String msg = messageService.getMessage("crud.read.success", ENTITY_NAME);
-        log.info("[{}] {}", methodNomenclature, msg);
-        return mapper.toResponse(response.get());
+        final String methodNomenclature = NOMENCLATURE + "-findById";
+        log.debug("[{}] Fetching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
+
+        InventoryItem entity = findEntityById(id);
+
+        return mapper.toResponse(entity);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<InventoryItemResponse> findAll(Pageable pageable) {
-        String methodNomenclature = NOMENCLATURE + "-findAll";
-        log.info("[{}] Fetching all {} entities", methodNomenclature, ENTITY_NAME);
-        Page<InventoryItemResponse> page = repository.findAll(pageable).map(mapper::toResponse);
-        log.info("[{}] Fetched {} entities, page size: {}", methodNomenclature, ENTITY_NAME, page.getNumberOfElements());
-        return page;
+        final String methodNomenclature = NOMENCLATURE + "-findAll";
+        log.debug("[{}] Fetching all {} entities", methodNomenclature, ENTITY_NAME);
+
+        return repository.findAll(pageable).map(mapper::toResponse);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<InventoryItemResponse> findAllByName(String name, Pageable pageable) {
-        String methodNomenclature = NOMENCLATURE + "-findAllByName";
-        log.info("[{}] Fetching all {} entities with name containing: '{}'", methodNomenclature, ENTITY_NAME, name);
-        Page<InventoryItemResponse> page = repository.findAllByNameContainingIgnoreCase(name, pageable).map(mapper::toResponse);
-        log.info("[{}] Fetched {} entities with name like '{}', page size: {}", methodNomenclature, ENTITY_NAME, name, page.getNumberOfElements());
-        return page;
+        final String methodNomenclature = NOMENCLATURE + "-findAllByName";
+        log.debug("[{}] Fetching {} entities with name containing: '{}'", methodNomenclature, ENTITY_NAME, name);
+
+        return repository.findAllByNameContainingIgnoreCase(name, pageable).map(mapper::toResponse);
     }
 
-    @Override
-    public Boolean isNameTaken(String name) {
-        String methodNomenclature = NOMENCLATURE + "-isNameTaken";
-        log.info("[{}] checking if name '{}' is taken for {}", methodNomenclature, name, ENTITY_NAME);
-        Boolean exists = repository.existsByNameIgnoreCase(name);
-        log.info("[{}] Name '{}' taken: {}", methodNomenclature, name, exists);
-        return exists;
+    private boolean isNameTaken(String name) {
+        return repository.existsByNameIgnoreCase(name);
+    }
+
+    // ========================================
+    // PRIVATE HELPERS
+    // ========================================
+
+    private InventoryItem findEntityById(Long id) {
+        return repository.findById(id)
+            .orElseThrow(() -> {
+                String message = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
+                return new ResourceNotFoundException(message);
+            });
+    }
+
+    private void validateNameUniqueness(String name) {
+        if (isNameTaken(name)) {
+            String message = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", name);
+            throw new ResourceConflictException(message);
+        }
+    }
+
+    private void validateNameUniquenessForUpdate(String currentName, String newName) {
+        if (!currentName.equals(newName) && isNameTaken(newName)) {
+            String message = messageService.getMessage("crud.already.exists", ENTITY_NAME, "name", newName);
+            throw new ResourceConflictException(message);
+        }
     }
 }
