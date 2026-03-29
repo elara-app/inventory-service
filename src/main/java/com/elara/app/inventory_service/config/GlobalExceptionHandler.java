@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,116 +30,118 @@ public class GlobalExceptionHandler {
 
     private final MessageService messageService;
 
+    // ========================================
+    // CUSTOM EXCEPTIONS
+    // ========================================
+
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ErrorResponse> handleBaseException(BaseException exception, HttpServletRequest request) {
-        ErrorResponse errorResponse = createErrorResponse(
+        log.warn("[GlobalExceptionHandler-BaseException] Code: {} | Message: {} | Path: {}", 
+            exception.getCode(), exception.getMessage(), request.getRequestURI());
+        ErrorResponse errorResponse = buildErrorResponse(
             exception.getCode(),
             exception.getValue(),
             exception.getMessage(),
             request.getRequestURI()
         );
-        return new ResponseEntity<>(errorResponse, determineHttpStatus(exception.getCode()));
+        return new ResponseEntity<>(errorResponse, ErrorCode.fromCode(exception.getCode()).getHttpStatus());
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException exception, HttpServletRequest request) {
-        ErrorResponse errorResponse = createErrorResponse(
-            ErrorCode.INVALID_DATA.getCode(),
-            ErrorCode.INVALID_DATA.getValue(),
-            Arrays.stream(exception.getDetailMessageArguments()).toList().get(1).toString(),
-            request.getRequestURI()
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+    // ========================================
+    // VALIDATION & REQUEST ERRORS (4xx)
+    // ========================================
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception, HttpServletRequest request) {
-        assert exception.getRequiredType() != null;
-        String message = messageService.getMessage("type.mismatch", exception.getName(), exception.getRequiredType().getSimpleName(), exception.getValue());
-        log.info("GlobalExceptionHandler: {}", message);
-        ErrorResponse errorResponse = createErrorResponse(
+    @ExceptionHandler({
+        MethodArgumentNotValidException.class,
+        MethodArgumentTypeMismatchException.class,
+        ConstraintViolationException.class,
+        MissingServletRequestParameterException.class
+    })
+    public ResponseEntity<ErrorResponse> handleBadRequestExceptions(Exception exception, HttpServletRequest request) {
+        String message = extractValidationMessage(exception);
+        log.warn("[GlobalExceptionHandler-ValidationError] Type: {} | Message: {} | Path: {}", 
+            exception.getClass().getSimpleName(), message, request.getRequestURI());
+        ErrorResponse errorResponse = buildErrorResponse(
             ErrorCode.INVALID_DATA.getCode(),
             ErrorCode.INVALID_DATA.getValue(),
             message,
             request.getRequestURI()
         );
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException exception, HttpServletRequest request) {
-        ErrorResponse errorResponse = createErrorResponse(
-                ErrorCode.INVALID_DATA.getCode(),
-                ErrorCode.INVALID_DATA.getValue(),
-                exception.getMessage(),
-                request.getRequestURI()
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorResponse, ErrorCode.INVALID_DATA.getHttpStatus());
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException exception, HttpServletRequest request) {
-        ErrorResponse errorResponse = createErrorResponse(
+        String message = messageService.getMessage("media.type.not.supported", exception.getContentType(), MediaType.APPLICATION_JSON_VALUE);
+        log.warn("[GlobalExceptionHandler-UnsupportedMediaType] ContentType: {} | Message: {} | Path: {}", 
+            exception.getContentType(), message, request.getRequestURI());
+        ErrorResponse errorResponse = buildErrorResponse(
             ErrorCode.INVALID_DATA.getCode(),
             ErrorCode.INVALID_DATA.getValue(),
-            messageService.getMessage("media.type.not.supported", exception.getContentType(), MediaType.APPLICATION_JSON_VALUE),
+            message,
             request.getRequestURI()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ErrorResponse> handleMissingParameter(MissingServletRequestParameterException exception, HttpServletRequest request) {
-        ErrorResponse errorResponse = createErrorResponse(
-            ErrorCode.INVALID_DATA.getCode(),
-            ErrorCode.INVALID_DATA.getValue(),
-            messageService.getMessage("parameter.missing", exception.getParameterName()),
-            request.getRequestURI()
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpServletRequest request) {
-        ErrorResponse errorResponse = createErrorResponse(
+    public ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException exception, HttpServletRequest request) {
+        String message = messageService.getMessage("method.not.supported", request.getMethod());
+        log.warn("[GlobalExceptionHandler-MethodNotAllowed] Method: {} | Message: {} | Path: {}", 
+            request.getMethod(), message, request.getRequestURI());
+        ErrorResponse errorResponse = buildErrorResponse(
             ErrorCode.INVALID_DATA.getCode(),
             ErrorCode.INVALID_DATA.getValue(),
-            messageService.getMessage("method.not.supported", request.getMethod()),
+            message,
             request.getRequestURI()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
+    // ========================================
+    // DATABASE ERRORS (5xx)
+    // ========================================
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException exception, HttpServletRequest request) {
-        String detail = getDataFromDataIntegrityExceptionMessage(exception.getMessage());
-        ErrorResponse errorResponse = createErrorResponse(
+        String detail = extractDataIntegrityDetail(exception.getMessage());
+        String message = "Integrity violation: " + messageService.getMessage("global.error.database", detail);
+        log.error("[GlobalExceptionHandler-DataIntegrityViolation] Message: {} | Path: {}", message, request.getRequestURI(), exception);
+        ErrorResponse errorResponse = buildErrorResponse(
             ErrorCode.DATABASE_ERROR.getCode(),
             ErrorCode.DATABASE_ERROR.getValue(),
-            "Integrity violation: " + messageService.getMessage("global.error.database", detail),
+            message,
             request.getRequestURI()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
+    // ========================================
+    // GENERIC FALLBACK (5xx)
+    // ========================================
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception exception, HttpServletRequest request) {
-        ErrorResponse errorResponse = createErrorResponse(
+        String message = messageService.getMessage("global.error.unexpected", exception.getMessage());
+        log.error("[GlobalExceptionHandler-UnexpectedException] Message: {} | Path: {} | Exception: {}", 
+            message, request.getRequestURI(), exception.getClass().getSimpleName(), exception);
+        ErrorResponse errorResponse = buildErrorResponse(
             ErrorCode.UNEXPECTED_ERROR.getCode(),
             ErrorCode.UNEXPECTED_ERROR.getValue(),
-            messageService.getMessage("global.error.unexpected", exception.getMessage()),
+            message,
             request.getRequestURI()
         );
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorResponse, ErrorCode.UNEXPECTED_ERROR.getHttpStatus());
     }
 
-    private static String getDataFromDataIntegrityExceptionMessage(String exceptionMessage) {
-        String notAvailable = "<>";
-        Matcher detailMatcher = Pattern.compile("Detail:\\s*([^.]+)").matcher(exceptionMessage);
-        return detailMatcher.find() ? detailMatcher.group(1).trim() : notAvailable;
-    }
+    // ========================================
+    // PRIVATE HELPERS
+    // ========================================
 
-    private ErrorResponse createErrorResponse(int code, String value, String message, String path) {
+    /**
+     * Build the error response with structured logging.
+     */
+    private ErrorResponse buildErrorResponse(int code, String value, String message, String path) {
         return ErrorResponse.builder()
             .code(code)
             .value(value)
@@ -150,13 +151,39 @@ public class GlobalExceptionHandler {
             .build();
     }
 
-    private HttpStatus determineHttpStatus(int errorCode) {
-        return switch (errorCode) {
-            case 1002 -> HttpStatus.BAD_REQUEST;
-            case 1003 -> HttpStatus.CONFLICT;
-            case 1004 -> HttpStatus.NOT_FOUND;
-            default -> HttpStatus.INTERNAL_SERVER_ERROR;
-        };
+    /**
+     * Extract the appropriate message based on the type of validation exception.
+     */
+    private String extractValidationMessage(Exception exception) {
+        if (exception instanceof MethodArgumentNotValidException methodArgException) {
+            Object[] args = methodArgException.getDetailMessageArguments();
+            return args.length > 1 ? args[1].toString() : "Invalid request data";
+        } else if (exception instanceof MethodArgumentTypeMismatchException typeMismatchException) {
+            String typeName = typeMismatchException.getRequiredType() != null 
+                ? typeMismatchException.getRequiredType().getSimpleName() 
+                : "Unknown";
+            return messageService.getMessage("type.mismatch", 
+                typeMismatchException.getName(), 
+                typeName, 
+                typeMismatchException.getValue());
+        } else if (exception instanceof ConstraintViolationException constraintException) {
+            return constraintException.getMessage();
+        } else if (exception instanceof MissingServletRequestParameterException missingParamException) {
+            return messageService.getMessage("parameter.missing", missingParamException.getParameterName());
+        }
+        return "Invalid request";
+    }
+
+    /**
+     * Extract the details of the data integrity exception.
+     */
+    private static String extractDataIntegrityDetail(String exceptionMessage) {
+        String notAvailable = "<>";
+        if (exceptionMessage == null) {
+            return notAvailable;
+        }
+        Matcher detailMatcher = Pattern.compile("Detail:\\s*([^.]+)").matcher(exceptionMessage);
+        return detailMatcher.find() ? detailMatcher.group(1).trim() : notAvailable;
     }
 
 }
