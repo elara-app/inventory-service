@@ -83,9 +83,9 @@ public class InventoryItemController {
         @Valid @RequestBody InventoryItemRequest request
     ) {
         final String methodNomenclature = NOMENCLATURE + "-create";
-        log.info("[{}] Request to create InventoryItem: {}", methodNomenclature, request);
+        log.info("[{}] Creating InventoryItem with name: '{}'", methodNomenclature, request.name());
         InventoryItemResponse response = service.save(request);
-        log.info("[{}] InventoryItem created with id: {}", methodNomenclature, response.id());
+        log.info("[{}] Created successfully with id: {}", methodNomenclature, response.id());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -114,10 +114,8 @@ public class InventoryItemController {
         @PathVariable @NotNull @Positive Long id
     ) {
         final String methodNomenclature = NOMENCLATURE + "-getById";
-        log.info("[{}] Request to get InventoryItem by id: {}", methodNomenclature, id);
-        InventoryItemResponse response = service.findById(id);
-        log.info("[{}] InventoryItem found: {}", methodNomenclature, response);
-        return ResponseEntity.ok(response);
+        log.debug("[{}] Fetching InventoryItem with id: {}", methodNomenclature, id);
+        return ResponseEntity.ok(service.findById(id));
     }
 
     @GetMapping
@@ -141,10 +139,8 @@ public class InventoryItemController {
         @PageableDefault(size = 20) Pageable pageable
     ) {
         final String methodNomenclature = NOMENCLATURE + "-getAll";
-        log.info("[{}] Request to get all InventoryItems.", methodNomenclature);
-        Page<InventoryItemResponse> response = service.findAll(pageable);
-        log.info("[{}] Fetched {} InventoryItems.", methodNomenclature, response.getNumberOfElements());
-        return ResponseEntity.ok(response);
+        log.debug("[{}] Fetching all InventoryItems", methodNomenclature);
+        return ResponseEntity.ok(service.findAll(pageable));
     }
 
     @GetMapping("search")
@@ -171,10 +167,8 @@ public class InventoryItemController {
         @PageableDefault(size = 20) Pageable pageable
     ) {
         final String methodNomenclature = NOMENCLATURE + "-getAllByName";
-        log.info("[{}] Request to search InventoryItems by name: {}", methodNomenclature, name);
-        Page<InventoryItemResponse> response = service.findAllByName(name, pageable);
-        log.info("[{}] Fetched {} InventoryItems for name: '{}'", methodNomenclature, response.getNumberOfElements(), name);
-        return ResponseEntity.ok(response);
+        log.debug("[{}] Searching InventoryItems by name: '{}'", methodNomenclature, name);
+        return ResponseEntity.ok(service.findAllByName(name, pageable));
     }
 
     // ========================================
@@ -217,9 +211,9 @@ public class InventoryItemController {
         @Valid @RequestBody InventoryItemUpdate update
     ) {
         final String methodNomenclature = NOMENCLATURE + "-update";
-        log.info("[{}] Request to update InventoryItem; id: {}, with data: {}", methodNomenclature, id, update);
+        log.info("[{}] Updating InventoryItem with id: {}", methodNomenclature, id);
         InventoryItemResponse response = service.update(id, update);
-        log.info("[{}] InventoryItem updated: {}", methodNomenclature, response);
+        log.info("[{}] Updated successfully with id: {}", methodNomenclature, id);
         return ResponseEntity.ok(response);
     }
 
@@ -252,9 +246,9 @@ public class InventoryItemController {
         @PathVariable @NotNull @Positive Long id
     ) {
         final String methodNomenclature = NOMENCLATURE + "-delete";
-        log.info("[{}] Request to delete InventoryItem id: {}", methodNomenclature, id);
+        log.info("[{}] Deleting InventoryItem with id: {}", methodNomenclature, id);
         service.deleteById(id);
-        log.info("[{}] InventoryItem deleted: {}", methodNomenclature, id);
+        log.info("[{}] Deleted successfully with id: {}", methodNomenclature, id);
         return ResponseEntity.noContent().build();
     }
 
