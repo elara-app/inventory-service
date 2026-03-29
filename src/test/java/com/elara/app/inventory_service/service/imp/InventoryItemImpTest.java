@@ -386,17 +386,13 @@ class InventoryItemImpTest {
         void deleteById_withExistingId_deletesSuccessfully() {
             // Given
             Long id = 1L;
-
-            when(repository.existsById(id)).thenReturn(true);
-            doNothing().when(repository).deleteById(id);
-            when(messageService.getMessage(anyString(), anyString())).thenReturn("Delete success");
+            when(repository.deleteByIdReturningCount(id)).thenReturn(1);
 
             // When
             service.deleteById(id);
 
             // Then
-            verify(repository).existsById(id);
-            verify(repository).deleteById(id);
+            verify(repository).deleteByIdReturningCount(id);
         }
 
         @Test
@@ -406,18 +402,16 @@ class InventoryItemImpTest {
             Long id = 999L;
             String errorMessage = "InventoryItem with id '999' not found";
 
-            when(repository.existsById(id)).thenReturn(false);
-            when(messageService.getMessage(anyString(), anyString(), anyString(), anyLong()))
+            when(repository.deleteByIdReturningCount(id)).thenReturn(0);
+            when(messageService.getMessage(anyString(), anyString(), anyString(), anyString()))
                 .thenReturn(errorMessage);
-            when(messageService.getMessage(anyString(), anyString())).thenReturn("Delete error");
 
             // When & Then
             assertThatThrownBy(() -> service.deleteById(id))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage(errorMessage);
 
-            verify(repository).existsById(id);
-            verify(repository, never()).deleteById(anyLong());
+            verify(repository).deleteByIdReturningCount(id);
         }
     }
 
