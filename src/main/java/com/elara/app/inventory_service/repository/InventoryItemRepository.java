@@ -9,6 +9,6 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, Lo
 
     Page<InventoryItem> findAllByNameContainingIgnoreCase(String name, Pageable pageable);
 
-    Boolean existsByNameIgnoreCase(String name);
+    boolean existsByNameIgnoreCase(String name);
 
 }
