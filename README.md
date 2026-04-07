@@ -1,8 +1,8 @@
 # Inventory Service
 
-Production-style Spring Boot microservice for inventory item management in a distributed platform.
+Spring Boot microservice for inventory item management within a distributed platform.
 
-This repository presents a complete `inventory-service` implementation where internal engineering quality is treated as a first-class product feature: layered architecture, strict validation, consistent error handling, API documentation, and multi-layer testing.
+The repository contains a complete `inventory-service` implementation where delivery quality is visible in the product itself: clear architecture boundaries, strict validation, consistent error contracts, documented APIs, and build-enforced testing standards.
 
 ## Project Snapshot
 
@@ -26,37 +26,21 @@ This repository presents a complete `inventory-service` implementation where int
 - Stable error contract through centralized exception handling and structured error responses.
 - OpenAPI documentation with reusable schemas and example payloads.
 
-Primary implementation references:
+Implementation references:
 - `src/main/java/com/elara/app/inventory_service/controller/InventoryItemController.java`
 - `src/main/java/com/elara/app/inventory_service/service/imp/InventoryItemImp.java`
 - `src/main/java/com/elara/app/inventory_service/config/GlobalExceptionHandler.java`
 - `src/main/java/com/elara/app/inventory_service/config/OpenApiConfig.java`
 
-## Architecture and Internal Design
-
-The service follows a clear layered structure:
-
-- `controller/`: HTTP contract, validation boundaries, response codes, OpenAPI annotations.
-- `service/interfaces` and `service/imp`: transactional business logic and orchestration.
-- `repository/`: JPA persistence and query operations.
-- `mapper/`: MapStruct DTO/entity transformations.
-- `exceptions/` + `config/GlobalExceptionHandler`: standardized exception-to-response mapping.
-- `dto/` (records): request/response/update contract models.
-
-Package root:
-- `src/main/java/com/elara/app/inventory_service`
-
 ## Microservice Ecosystem Context
 
-This service is one component in a broader microservices architecture; peer services are documented in their own repositories.
+Inventory Service operates as one service in a broader microservices architecture. Peer services keep their own repositories and documentation, while this repository captures only the interactions required by Inventory:
 
-In this repository, the concrete integration points are:
-
-- **Service discovery:** Eureka client dependency and load-balanced inter-service calls.
-- **Centralized configuration:** Config Server import (`application.yml`).
-- **Secrets management:** Vault import for the `dev` profile (`application-dev.yml`).
-- **Distributed refresh:** Spring Cloud Bus via AMQP.
-- **Cross-service dependency:** UOM validation through `UomServiceClientImp` using `@LoadBalanced RestTemplate`.
+- **Service discovery and client-side load balancing** for inter-service communication.
+- **Centralized configuration** through Config Server.
+- **Secrets management** through Vault in the `dev` profile.
+- **Distributed config refresh** through Spring Cloud Bus (AMQP).
+- **UOM dependency validation** via `UomServiceClientImp` and `@LoadBalanced RestTemplate`.
 
 Key references:
 - `src/main/resources/application.yml`
@@ -79,12 +63,14 @@ Detailed request/response schemas and examples are configured in:
 - `src/main/java/com/elara/app/inventory_service/config/OpenApiConfig.java`
 - `src/main/resources/examples/`
 
-## Engineering Quality Signals
+## Technical Highlights
 
-- Multi-layer test strategy across controller, service, repository, mapper, exceptions, and utilities.
-- Mock isolation patterns (`@AfterEach` + `reset(...)`) and Given-When-Then structure.
-- JaCoCo enforcement at build time with explicit thresholds and exclusions.
-- Strong conventions for logging nomenclature, exception hierarchy, and DTO-first API boundaries.
+- Layered internal design across `controller`, `service`, `repository`, `mapper`, `exceptions`, and `dto` packages.
+- DTO-first API boundaries (records), MapStruct-based mapping, and transactional service methods.
+- Centralized exception handling with structured error responses and standard error codes.
+- Multi-layer testing strategy (controller, service, repository, mapper, exceptions, utilities).
+- Mock isolation patterns (`@AfterEach` + `reset(...)`) with Given-When-Then test structure.
+- JaCoCo quality gates enforced in Maven build lifecycle.
 
 References:
 - `TESTING_GUIDE.md`
@@ -107,9 +93,6 @@ Targeted test examples:
 ./mvnw test -Dtest=InventoryItemImpTest#save_withValidRequest_createsAndReturnsResponse
 ```
 
-## Current State
-
-The repository contains a fully implemented inventory microservice with production-style conventions, documented API behavior, and quality controls integrated into the build lifecycle.
 
 ## Related Documentation
 
