@@ -50,21 +50,17 @@
 	<!-- - - - - - - - - - - - - -->
 	<properties>
 		<java.version>21</java.version>
-		<maven.compiler.source>21</maven.compiler.source>
-		<maven.compiler.target>21</maven.compiler.target>
+		<maven.compiler.release>21</maven.compiler.release>
 		<lombok.version>1.18.38</lombok.version>
-        <postgresql.version>42.7.7</postgresql.version>
-		<h2.version>2.3.232</h2.version>
+<!--        <postgresql.version>42.7.7</postgresql.version>-->
+<!--		<h2.version>2.3.232</h2.version>-->
 		<mapstruct.version>1.6.3</mapstruct.version>
-		<mapstruct.processor.version>1.6.3</mapstruct.processor.version>
 		<springdoc.openapi.version>2.8.0</springdoc.openapi.version>
 		<spring-cloud.version>2025.0.0</spring-cloud.version>
 		<jacoco.version>0.8.14</jacoco.version>
 		<!-- + + + + -->
 		<sonar.scanner.version>5.1.0.4751</sonar.scanner.version>
-		<sonar.language>java</sonar.language>
 		<sonar.projectKey>com.elara.app:inventory-service</sonar.projectKey>
-		<sonar.host.url>http://localhost:9000</sonar.host.url>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 		<sonar.exclusions>
 			**/InventoryServiceApplication.java
@@ -115,12 +111,6 @@
             <version>${mapstruct.version}</version>
         </dependency>
 		<dependency>
-    		<groupId>org.mapstruct</groupId>
-    		<artifactId>mapstruct-processor</artifactId>
-			<version>${mapstruct.processor.version}</version>
-    		<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
@@ -146,25 +136,26 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>${postgresql.version}</version>
+<!--			<version>${postgresql.version}</version>-->
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<version>${h2.version}</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 
 		<!-- Test dependencies -->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+<!--			<version>${h2.version}</version>-->
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -189,8 +180,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
+					<release>${maven.compiler.release}</release>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>
@@ -200,7 +190,7 @@
 						<path>
 							<groupId>org.mapstruct</groupId>
 							<artifactId>mapstruct-processor</artifactId>
-							<version>${mapstruct.processor.version}</version>
+							<version>${mapstruct.version}</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
@@ -261,7 +251,7 @@
 										</limit>
 									</limits>
 									<excludes>
-										<exclude>com.elara.app.inventory_service.configuration.*</exclude>
+										<exclude>com.elara.app.inventory_service.config.*</exclude>
 										<exclude>com.elara.app.inventory_service.InventoryServiceApplication</exclude>
 									</excludes>
 								</rule>
