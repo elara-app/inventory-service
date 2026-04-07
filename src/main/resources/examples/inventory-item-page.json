@@ -1,0 +1,47 @@
+{
+  "content": [
+    {
+      "id": 1,
+      "name": "Steel Bolt M10",
+      "description": "High-strength steel bolt, metric M10 x 50mm",
+      "baseUnitOfMeasureId": 1,
+      "standardCost": 2.50,
+      "unitPerPurchaseUom": 100.00,
+      "reorderPointQuantity": 500.00
+    },
+    {
+      "id": 2,
+      "name": "Aluminum Sheet 4x8",
+      "description": "Aluminum sheet 4 feet by 8 feet, 1mm thickness",
+      "baseUnitOfMeasureId": 2,
+      "standardCost": 45.00,
+      "unitPerPurchaseUom": 50.00,
+      "reorderPointQuantity": 100.00
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": true,
+      "unsorted": false,
+      "empty": false
+    },
+    "pageNumber": 0,
+    "pageSize": 20,
+    "offset": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "totalPages": 1,
+  "totalElements": 2,
+  "last": true,
+  "number": 0,
+  "size": 20,
+  "sort": {
+    "sorted": true,
+    "unsorted": false,
+    "empty": false
+  },
+  "numberOfElements": 2,
+  "first": true,
+  "empty": false
+}

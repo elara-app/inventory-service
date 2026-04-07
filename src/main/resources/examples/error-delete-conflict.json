@@ -1,0 +1,7 @@
+{
+  "code": 1005,
+  "value": "DATABASE_ERROR",
+  "message": "Integrity violation: cannot delete item because it is referenced by one or more records",
+  "timestamp": "2025-08-06T10:30:15",
+  "path": "/item/1"
+}

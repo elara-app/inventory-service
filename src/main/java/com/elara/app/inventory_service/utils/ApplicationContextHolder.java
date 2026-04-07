@@ -1,5 +1,6 @@
 package com.elara.app.inventory_service.utils;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -11,7 +12,7 @@ public class ApplicationContextHolder implements ApplicationContextAware {
     private static ApplicationContext context;
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
         context = applicationContext;
     }
 
