@@ -1,3 +1,5 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/elara-app/inventory-service)
+
 # Inventory Service
 
 Spring Boot microservice for inventory item lifecycle and stock-relevant master data management within a distributed platform.
