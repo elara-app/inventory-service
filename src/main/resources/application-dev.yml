@@ -1,8 +1,23 @@
 spring:
   config:
-    import: vault://secret/inventory-service/dev
+    import: optional:vault://secret/inventory-service/dev
   cloud:
     vault:
-      uri: http://localhost:8200
+      enabled: true
+      fail-fast: false
+      uri: ${VAULT_URI:http://localhost:8200}
       authentication: TOKEN
-      token: 00000000-0000-0000-0000-000000000000
+      token: ${VAULT_TOKEN:00000000-0000-0000-0000-000000000000}
+      kv:
+        enabled: true
+        backend: secret
+        default-context: inventory-service
+        profile-separator: '/'
+  jpa:
+    hibernate:
+      ddl-auto: update
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:db/dev/seed.sql
