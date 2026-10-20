@@ -81,7 +81,7 @@ public class InventoryItemImp implements InventoryItemService {
     @Transactional(readOnly = true)
     public InventoryItemResponse findById(Long id) {
         final String methodNomenclature = NOMENCLATURE + "-findById";
-        log.debug("[{}] Fetching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
+        log.info("[{}] Fetching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
 
         InventoryItem entity = findEntityById(id);
 
@@ -92,7 +92,7 @@ public class InventoryItemImp implements InventoryItemService {
     @Transactional(readOnly = true)
     public Page<InventoryItemResponse> findAll(Pageable pageable) {
         final String methodNomenclature = NOMENCLATURE + "-findAll";
-        log.debug("[{}] Fetching all {} entities", methodNomenclature, ENTITY_NAME);
+        log.info("[{}] Fetching all {} entities", methodNomenclature, ENTITY_NAME);
 
         return repository.findAll(pageable).map(mapper::toResponse);
     }
@@ -101,7 +101,7 @@ public class InventoryItemImp implements InventoryItemService {
     @Transactional(readOnly = true)
     public Page<InventoryItemResponse> findAllByName(String name, Pageable pageable) {
         final String methodNomenclature = NOMENCLATURE + "-findAllByName";
-        log.debug("[{}] Fetching {} entities with name containing: '{}'", methodNomenclature, ENTITY_NAME, name);
+        log.info("[{}] Fetching {} entities with name containing: '{}'", methodNomenclature, ENTITY_NAME, name);
 
         return repository.findAllByNameContainingIgnoreCase(name, pageable).map(mapper::toResponse);
     }

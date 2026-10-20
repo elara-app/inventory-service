@@ -114,7 +114,7 @@ public class InventoryItemController {
         @PathVariable @NotNull @Positive Long id
     ) {
         final String methodNomenclature = NOMENCLATURE + "-getById";
-        log.debug("[{}] Fetching InventoryItem with id: {}", methodNomenclature, id);
+        log.info("[{}] Fetching InventoryItem with id: {}", methodNomenclature, id);
         return ResponseEntity.ok(service.findById(id));
     }
 
@@ -139,7 +139,7 @@ public class InventoryItemController {
         @PageableDefault(size = 20) Pageable pageable
     ) {
         final String methodNomenclature = NOMENCLATURE + "-getAll";
-        log.debug("[{}] Fetching all InventoryItems", methodNomenclature);
+        log.info("[{}] Fetching all InventoryItems", methodNomenclature);
         return ResponseEntity.ok(service.findAll(pageable));
     }
 
@@ -167,7 +167,7 @@ public class InventoryItemController {
         @PageableDefault(size = 20) Pageable pageable
     ) {
         final String methodNomenclature = NOMENCLATURE + "-getAllByName";
-        log.debug("[{}] Searching InventoryItems by name: '{}'", methodNomenclature, name);
+        log.info("[{}] Searching InventoryItems by name: '{}'", methodNomenclature, name);
         return ResponseEntity.ok(service.findAllByName(name, pageable));
     }
 
