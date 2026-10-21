@@ -34,7 +34,7 @@ public class OpenApiConfig {
         return new OpenAPI()
             .info(new Info()
                 .title("Inventory Service API")
-                .version("1.0.0")
+                .version("1.3.0")
                 .description("""
                         RESTful API for managing Inventory Items in the Elara platform.
                         
