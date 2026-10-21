@@ -191,7 +191,7 @@ public class EntityController {
     @Operation(summary = "...", description = "...")
     public ResponseEntity<EntityResponse> create(@Valid @RequestBody EntityRequest request) {
         final String methodNomenclature = NOMENCLATURE + "-create";
-        log.info("[{}] Request to create {}: {}", methodNomenclature, ENTITY_NAME, request);
+        log.info("[{}] Request to create {} with name: '{}'", methodNomenclature, ENTITY_NAME, request.name());
         EntityResponse response = service.save(request);
         log.info("[{}] {} created with id: {}", methodNomenclature, ENTITY_NAME, response.id());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -404,7 +404,7 @@ public class UomServiceClientImp implements UomServiceClient {
             
             log.info("[{}] Searching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
             ResponseEntity<UomResponse> response = restTemplate.getForEntity(uri, UomResponse.class);
-            log.info("[{}] Found: {}", methodNomenclature, response.getBody());
+            log.debug("[{}] Response body: {}", methodNomenclature, response.getBody());
         } catch (HttpClientErrorException.NotFound e) {
             String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
             log.warn("[{}] {}", methodNomenclature, msg);
