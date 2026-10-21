@@ -52,7 +52,6 @@ public class UomServiceClientImp implements UomServiceClient {
             log.info("[{}] {}", methodNomenclature, msg);
         } catch (HttpClientErrorException.NotFound e) {
             String msg = messageService.getMessage("crud.not.found", "UOM", "id", id.toString());
-            log.warn("[{}] {}", methodNomenclature, msg);
             throw new ResourceNotFoundException(msg);
         }
     }
