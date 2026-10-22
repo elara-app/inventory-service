@@ -102,7 +102,7 @@ public class EntityImp implements EntityService {
     @Transactional  // Always on methods that modify data
     public EntityResponse save(EntityRequest request) {
         final String methodNomenclature = NOMENCLATURE + "-save";
-        log.info("[{}] Attempting to create {}: {}", methodNomenclature, ENTITY_NAME, request);
+        log.info("[{}] Attempting to create {} with name: '{}'", methodNomenclature, ENTITY_NAME, request.name());
         
         // Validation first
         if (repository.existsByNameIgnoreCase(request.name())) {
@@ -127,7 +127,7 @@ public class EntityImp implements EntityService {
 ### Logging with Nomenclature
 ```java
 final String methodNomenclature = NOMENCLATURE + "-methodName";
-log.info("[{}] Attempting to create {}: {}", methodNomenclature, ENTITY_NAME, request);
+log.info("[{}] Attempting to create {} with name: '{}'", methodNomenclature, ENTITY_NAME, request.name());
 log.error("[{}] Unexpected error: {}", methodNomenclature, e.getMessage(), e);
 ```
 

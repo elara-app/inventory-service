@@ -191,7 +191,7 @@ public class EntityController {
     @Operation(summary = "...", description = "...")
     public ResponseEntity<EntityResponse> create(@Valid @RequestBody EntityRequest request) {
         final String methodNomenclature = NOMENCLATURE + "-create";
-        log.info("[{}] Request to create {}: {}", methodNomenclature, ENTITY_NAME, request);
+        log.info("[{}] Request to create {} with name: '{}'", methodNomenclature, ENTITY_NAME, request.name());
         EntityResponse response = service.save(request);
         log.info("[{}] {} created with id: {}", methodNomenclature, ENTITY_NAME, response.id());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -335,6 +335,10 @@ log.error("[{}] Unexpected error: {}", methodNomenclature, e.getMessage(), e);
 final String methodNomenclature = NOMENCLATURE + "-methodName";
 ```
 
+The global exception handler owns exception logging: log the operation here and
+let the handler report the exceptions you propagate. Logging a `WARN` in a
+`catch` that rethrows produces two `WARN` lines for the same failure.
+
 ## Testing Standards
 
 Reference the comprehensive [TESTING_GUIDE.md](TESTING_GUIDE.md) for detailed testing patterns.
@@ -358,6 +362,7 @@ Reference the comprehensive [TESTING_GUIDE.md](TESTING_GUIDE.md) for detailed te
 - Use `@Parameter` for path/query parameters
 - Reference schema examples: `@Schema(ref = "#/components/schemas/...")`
 - `OpenApiConfig` loads example payloads from `src/main/resources/examples/*.json`; keep those files aligned with response schemas and controller examples
+- The `info.version` literal in `OpenApiConfig` must equal the project version in `pom.xml`; update both when the version changes
 
 ## Common Patterns
 
@@ -404,10 +409,9 @@ public class UomServiceClientImp implements UomServiceClient {
             
             log.info("[{}] Searching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
             ResponseEntity<UomResponse> response = restTemplate.getForEntity(uri, UomResponse.class);
-            log.info("[{}] Found: {}", methodNomenclature, response.getBody());
+            log.debug("[{}] Response body: {}", methodNomenclature, response.getBody());
         } catch (HttpClientErrorException.NotFound e) {
             String msg = messageService.getMessage("crud.not.found", ENTITY_NAME, "id", id.toString());
-            log.warn("[{}] {}", methodNomenclature, msg);
             throw new ResourceNotFoundException(msg);
         }
     }

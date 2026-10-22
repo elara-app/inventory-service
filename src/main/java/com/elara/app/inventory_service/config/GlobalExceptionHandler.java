@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,15 +37,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ErrorResponse> handleBaseException(BaseException exception, HttpServletRequest request) {
-        log.warn("[GlobalExceptionHandler-BaseException] Code: {} | Message: {} | Path: {}", 
-            exception.getCode(), exception.getMessage(), request.getRequestURI());
+        String path = request.getRequestURI();
+        int code = exception.getCode();
+        String message = exception.getMessage();
+        HttpStatus status = ErrorCode.fromCode(code).getHttpStatus();
+        if (status.is5xxServerError()) {
+            log.error("[GlobalExceptionHandler-BaseException] Code: {} | Message: {} | Path: {}", code, message, path, exception);
+        } else {
+            log.warn("[GlobalExceptionHandler-BaseException] Code: {} | Message: {} | Path: {}", code, message, path);
+        }
         ErrorResponse errorResponse = buildErrorResponse(
-            exception.getCode(),
+            code,
             exception.getValue(),
-            exception.getMessage(),
-            request.getRequestURI()
+            message,
+            path
         );
-        return new ResponseEntity<>(errorResponse, ErrorCode.fromCode(exception.getCode()).getHttpStatus());
+        return new ResponseEntity<>(errorResponse, status);
     }
 
     // ========================================
@@ -99,19 +107,23 @@ public class GlobalExceptionHandler {
     }
 
     // ========================================
-    // DATABASE ERRORS (5xx)
+    // DATABASE INTEGRITY (409)
     // ========================================
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException exception, HttpServletRequest request) {
+        String path = request.getRequestURI();
         String detail = extractDataIntegrityDetail(exception.getMessage());
         String message = "Integrity violation: " + messageService.getMessage("global.error.database", detail);
-        log.error("[GlobalExceptionHandler-DataIntegrityViolation] Message: {} | Path: {}", message, request.getRequestURI(), exception);
+        String sqlState = exception.getMostSpecificCause() instanceof SQLException sqlException
+            ? sqlException.getSQLState()
+            : "n/a";
+        log.warn("[GlobalExceptionHandler-DataIntegrityViolation] SQLState: {} | Path: {}", sqlState, path);
         ErrorResponse errorResponse = buildErrorResponse(
             ErrorCode.DATABASE_ERROR.getCode(),
             ErrorCode.DATABASE_ERROR.getValue(),
             message,
-            request.getRequestURI()
+            path
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }

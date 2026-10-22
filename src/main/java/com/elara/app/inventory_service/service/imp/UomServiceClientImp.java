@@ -45,14 +45,13 @@ public class UomServiceClientImp implements UomServiceClient {
 
             log.info("[{}] Searching {} with id: {}", methodNomenclature, ENTITY_NAME, id);
             ResponseEntity<UomResponse> response = restTemplate.getForEntity(uri, UomResponse.class);
-            log.info("{}", response.getStatusCode());
-            log.info("{}", response.getHeaders());
-            log.info("{}", response.getBody());
+            log.debug("[{}] Response status: {}", methodNomenclature, response.getStatusCode());
+            log.debug("[{}] Response headers: {}", methodNomenclature, response.getHeaders());
+            log.debug("[{}] Response body: {}", methodNomenclature, response.getBody());
             String msg = messageService.getMessage("crud.read.success", ENTITY_NAME);
             log.info("[{}] {}", methodNomenclature, msg);
         } catch (HttpClientErrorException.NotFound e) {
             String msg = messageService.getMessage("crud.not.found", "UOM", "id", id.toString());
-            log.warn("[{}] {}", methodNomenclature, msg);
             throw new ResourceNotFoundException(msg);
         }
     }
