@@ -13,6 +13,7 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -20,6 +21,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -59,6 +61,9 @@ public class OpenApiConfig {
                 .license(new License()
                     .name("MIT License")
                     .url("https://opensource.org/license/mit")))
+            .servers(List.of(new Server()
+                .url("/api/v1/inventory")
+                .description("API Gateway")))
             .components(new Components()
                 .addResponses("BadRequest", createErrorResponse("Bad Request - Invalid input data, validation errors, or missing required parameters"))
                 .addResponses("NotFound", createErrorResponse("Not Found - The requested resource does not exist"))
