@@ -362,7 +362,7 @@ Reference the comprehensive [TESTING_GUIDE.md](TESTING_GUIDE.md) for detailed te
 - Use `@Parameter` for path/query parameters
 - Reference schema examples: `@Schema(ref = "#/components/schemas/...")`
 - `OpenApiConfig` loads example payloads from `src/main/resources/examples/*.json`; keep those files aligned with response schemas and controller examples
-- The `info.version` literal in `OpenApiConfig` must equal the project version in `pom.xml`; `OpenApiVersionTest` enforces this and fails when the two drift apart
+- The `info.version` literal in `OpenApiConfig` must equal the project version in `pom.xml`; update both when the version changes
 
 ## Common Patterns
 
