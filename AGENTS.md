@@ -6,8 +6,8 @@ Durable instructions for coding agents modifying this repository. Source code an
 
 - [README.md](README.md) — API contract, run/verify, troubleshooting. The README owns the API table.
 - [TESTING_GUIDE.md](TESTING_GUIDE.md) — test styles, isolation, coverage in detail.
-- [../infra/README.md](../infra/README.md) — canonical full-stack commands; this repo never duplicates them.
-- [../centralized-configuration/README.md](../centralized-configuration/README.md) — profile matrix, property ownership, Vault paths.
+- [infrastructure/README.md](https://github.com/elara-app/infrastructure#readme) — canonical full-stack commands; this repo never duplicates them.
+- [centralized-configuration/README.md](https://github.com/elara-app/centralized-configuration#readme) — profile matrix, property ownership, Vault paths.
 - [pom.xml](pom.xml) — versions, dependencies, JaCoCo rules.
 
 ## Scope and boundaries
@@ -38,9 +38,9 @@ sh ./mvnw test -Dtest=InventoryItemImpTest#save_withValidRequest_createsAndRetur
 sh ./mvnw -B clean verify -Dspring.profiles.active=test    # full gate: tests + JaCoCo check
 ```
 
-Full-stack startup is owned by [infra/README.md](../infra/README.md#verify-the-stack). Do not add compose commands here.
+Full-stack startup is owned by [infrastructure/README.md](https://github.com/elara-app/infrastructure#readme). Do not add compose commands here.
 
-`spring-boot:run` is not a standalone quickstart: the default `dev` profile needs Config Server and PostgreSQL. The `test` profile is not a host-run option either because H2 is test-scoped; `spring-boot:run -Dspring-boot.run.profiles=test` fails with `Cannot load driver class: org.h2.Driver`. Run the full stack via infra, or supply Config Server and PostgreSQL.
+`spring-boot:run` is not a standalone quickstart: the default `dev` profile needs Config Server and PostgreSQL. The `test` profile is not a host-run option either because H2 is test-scoped; `spring-boot:run -Dspring-boot.run.profiles=test` fails with `Cannot load driver class: org.h2.Driver`. Run the full stack via infrastructure, or supply Config Server and PostgreSQL.
 
 ## Repository map
 

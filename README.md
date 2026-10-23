@@ -32,7 +32,7 @@ A layered MVC service with one domain entity:
 - `controller` → `service/imp` → `repository` (Spring Data JPA / PostgreSQL); MapStruct maps DTOs to the `inventory_item` entity.
 - `InventoryItemImp` calls `UomServiceClientImp`, a `@LoadBalanced RestTemplate` client that resolves `unit-of-measure-service` through Eureka and calls `GET http://unit-of-measure-service/{id}`.
 - Page responses are serialized as `PagedModel` (`@EnableSpringDataWebSupport(... VIA_DTO)`), which produces the nested `content` + `page` shape.
-- Platform wiring (gateway route, Eureka, Config Server, Vault, RabbitMQ) lives in [infra/README.md](../infra/README.md) and [centralized-configuration/README.md](../centralized-configuration/README.md).
+- Platform wiring (gateway route, Eureka, Config Server, Vault, RabbitMQ) lives in [infrastructure/README.md](https://github.com/elara-app/infrastructure#readme) and [centralized-configuration/README.md](https://github.com/elara-app/centralized-configuration#readme).
 
 ## API
 
@@ -102,7 +102,7 @@ sh ./mvnw test -Dtest=InventoryItemControllerTest
 sh ./mvnw test -Dtest=InventoryItemImpTest#save_withValidRequest_createsAndReturnsResponse
 ```
 
-Full-stack startup, ports and logs are owned by [infra/README.md](../infra/README.md#verify-the-stack). Do not start the stack from this repository.
+Full-stack startup, ports and logs are owned by [infrastructure/README.md](https://github.com/elara-app/infrastructure#readme). Do not start the stack from this repository.
 
 Service smoke command (through the gateway, once the stack is running):
 
@@ -118,11 +118,11 @@ Direct service endpoints (bypassing the gateway):
 - OpenAPI JSON: `http://127.0.0.1:8081/v3/api-docs`
 - Swagger UI direct: `http://127.0.0.1:8081/swagger-ui/index.html` (`/swagger-ui.html` redirects)
 
-`sh ./mvnw spring-boot:run` is not a standalone quickstart. The default `dev` profile needs Config Server (port, datasource, JPA dialect) plus PostgreSQL, and optionally Vault. The `test` profile is not a host-run option either: H2 is test-scoped, so `spring-boot:run -Dspring-boot.run.profiles=test` fails with `Cannot load driver class: org.h2.Driver`. Run the full stack via infra, or supply Config Server and PostgreSQL.
+`sh ./mvnw spring-boot:run` is not a standalone quickstart. The default `dev` profile needs Config Server (port, datasource, JPA dialect) plus PostgreSQL, and optionally Vault. The `test` profile is not a host-run option either: H2 is test-scoped, so `spring-boot:run -Dspring-boot.run.profiles=test` fails with `Cannot load driver class: org.h2.Driver`. Run the full stack via infrastructure, or supply Config Server and PostgreSQL.
 
 ## Configuration
 
-Service-specific configuration lives in `src/main/resources/` and in `centralized-configuration/inventory-service-{dev,test,prod}.yml`; the full profile matrix and property ownership are in [centralized-configuration/README.md](../centralized-configuration/README.md).
+Service-specific configuration lives in `src/main/resources/` and in `centralized-configuration/inventory-service-{dev,test,prod}.yml`; the full profile matrix and property ownership are in [centralized-configuration/README.md](https://github.com/elara-app/centralized-configuration#readme).
 
 | Key / file | Purpose |
 |---|---|
@@ -165,13 +165,13 @@ See [TESTING_GUIDE.md](TESTING_GUIDE.md) for test styles and examples.
 | Missing `name` in search returns 400 code 1002 | `name` is required and `@NotBlank` | Always send `name` |
 | `sort=unknownField` returns 500 code 1006 | The sort property is not validated against the entity | Sort only by entity fields or omit `sort` |
 | 409 code 1001 instead of 1003 | The DB constraint rejected the write (integrity violation) | Check the item name; create races can produce case variants |
-| `spring-boot:run` fails during startup | The `dev` profile needs Config Server + PostgreSQL; the H2 test profile is not on the `spring-boot:run` classpath | Run the stack via infra, or supply Config Server + PostgreSQL |
+| `spring-boot:run` fails during startup | The `dev` profile needs Config Server + PostgreSQL; the H2 test profile is not on the `spring-boot:run` classpath | Run the stack via infrastructure, or supply Config Server + PostgreSQL |
 | Seed data missing | The seed SQL runs only in the `dev` profile | Check the active profile and container logs |
 
 ## Documentation
 
 - [AGENTS.md](AGENTS.md) — agent commands, invariants, traps
 - [TESTING_GUIDE.md](TESTING_GUIDE.md) — testing patterns and real examples
-- [infra/README.md](../infra/README.md) — full-stack startup and verification
-- [centralized-configuration/README.md](../centralized-configuration/README.md) — profiles, properties, Vault paths
+- [infrastructure/README.md](https://github.com/elara-app/infrastructure#readme) — full-stack startup and verification
+- [centralized-configuration/README.md](https://github.com/elara-app/centralized-configuration#readme) — profiles, properties, Vault paths
 - Live API: Swagger UI `http://127.0.0.1:8080/swagger-ui.html`; direct `http://127.0.0.1:8081/swagger-ui/index.html`
